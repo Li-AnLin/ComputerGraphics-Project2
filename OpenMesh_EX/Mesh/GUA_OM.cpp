@@ -517,10 +517,8 @@ void Tri_Mesh::Render_SolidWireframe()
 		}
 	}
 	glEnd();
-
 	
 	//glDisable(GL_POLYGON_OFFSET_FILL);
-
 
 	glPushAttrib(GL_LIGHTING_BIT);	
 	glDisable(GL_LIGHTING);
@@ -538,6 +536,9 @@ void Tri_Mesh::Render_SolidWireframe()
 		glVertex3dv(curVertex.data());			
 	}
 	glEnd();
+
+	//OMP::Model::RenderSpecifiedVertex();
+
 	glPopAttrib();
 }
 
@@ -574,6 +575,16 @@ void Tri_Mesh::Render_Point()
 		  glVertex3dv(point(v_it).data());
 	}
 	glEnd();
+}
+
+void Tri_Mesh::FindNearVertex(GLdouble * pos)
+{
+	VIter v_it;
+	for (v_it = vertices_begin(); v_it != vertices_end(); ++v_it)
+	{
+		Point vertex = point(v_it);
+		//std::cout << std::to_string(vertex[0]) << " " << std::to_string(vertex[1]) << " " << std::to_string(vertex[2]) << std::endl;
+	}
 }
 
 bool ReadFile(std::string _fileName,Tri_Mesh *_mesh)

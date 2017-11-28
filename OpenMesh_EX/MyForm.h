@@ -87,10 +87,12 @@ namespace OpenMesh_EX {
 			// 
 			// menuStrip1
 			// 
+			this->menuStrip1->ImageScalingSize = System::Drawing::Size(20, 20);
 			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->fileToolStripMenuItem });
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(613, 24);
+			this->menuStrip1->Padding = System::Windows::Forms::Padding(8, 2, 0, 2);
+			this->menuStrip1->Size = System::Drawing::Size(817, 27);
 			this->menuStrip1->TabIndex = 1;
 			this->menuStrip1->Text = L"menuStrip1";
 			// 
@@ -101,20 +103,20 @@ namespace OpenMesh_EX {
 					this->saveModelToolStripMenuItem
 			});
 			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
-			this->fileToolStripMenuItem->Size = System::Drawing::Size(38, 20);
+			this->fileToolStripMenuItem->Size = System::Drawing::Size(45, 23);
 			this->fileToolStripMenuItem->Text = L"File";
 			// 
 			// loadModelToolStripMenuItem
 			// 
 			this->loadModelToolStripMenuItem->Name = L"loadModelToolStripMenuItem";
-			this->loadModelToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->loadModelToolStripMenuItem->Size = System::Drawing::Size(168, 26);
 			this->loadModelToolStripMenuItem->Text = L"Load Model";
 			this->loadModelToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::loadModelToolStripMenuItem_Click);
 			// 
 			// saveModelToolStripMenuItem
 			// 
 			this->saveModelToolStripMenuItem->Name = L"saveModelToolStripMenuItem";
-			this->saveModelToolStripMenuItem->Size = System::Drawing::Size(144, 22);
+			this->saveModelToolStripMenuItem->Size = System::Drawing::Size(168, 26);
 			this->saveModelToolStripMenuItem->Text = L"Save Model";
 			this->saveModelToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::saveModelToolStripMenuItem_Click);
 			// 
@@ -135,13 +137,14 @@ namespace OpenMesh_EX {
 			hkcoglPanelCameraSetting1->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
 			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting1;
 			this->hkoglPanelControl1->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->hkoglPanelControl1->Location = System::Drawing::Point(0, 24);
+			this->hkoglPanelControl1->Location = System::Drawing::Point(0, 27);
+			this->hkoglPanelControl1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->hkoglPanelControl1->Name = L"hkoglPanelControl1";
 			hkcoglPanelPixelFormat1->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
 			hkcoglPanelPixelFormat1->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
 			hkcoglPanelPixelFormat1->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
 			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat1;
-			this->hkoglPanelControl1->Size = System::Drawing::Size(613, 430);
+			this->hkoglPanelControl1->Size = System::Drawing::Size(817, 541);
 			this->hkoglPanelControl1->TabIndex = 2;
 			this->hkoglPanelControl1->Load += gcnew System::EventHandler(this, &MyForm::hkoglPanelControl1_Load);
 			this->hkoglPanelControl1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::hkoglPanelControl1_Paint);
@@ -151,12 +154,13 @@ namespace OpenMesh_EX {
 			// 
 			// MyForm
 			// 
-			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
+			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(613, 454);
+			this->ClientSize = System::Drawing::Size(817, 568);
 			this->Controls->Add(this->hkoglPanelControl1);
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
+			this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->Name = L"MyForm";
 			this->Text = L"OpenMesh_EX";
 			this->menuStrip1->ResumeLayout(false);
@@ -185,10 +189,31 @@ private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glMultMatrixd((double *)xf);
+	//Axis-------
+	//glPushMatrix();
+	//int length = 1000;
+	//glBegin(GL_LINES);
+	//glLineWidth(10.0);
+	//glColor4f(1.0, 0.0, 0.0, 1.0);
+	//glVertex3f(0, 0, 0);
+	//glVertex3f(length, 0, 0);
+
+	//glColor4f(0.0, 1.0, 0.0, 1.0);
+	//glVertex3f(0, 0, 0);
+	//glVertex3f(0, length, 0);
+
+	//glColor4f(0.0, 0.0, 1.0, 1.0);
+	//glVertex3f(0, 0, 0);
+	//glVertex3f(0, 0, length);
+	//glEnd();
+	//glPopMatrix();
+	//----------
+
 	if (mesh != NULL)
 		mesh->Render_SolidWireframe();
 	glPopMatrix();
 }
+
 private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
 {
 	if (e->Button == System::Windows::Forms::MouseButtons::Left ||
@@ -202,6 +227,35 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 		camera.mouse(e->X, e->Y, Mouse_State,
 			xf * center,
 			1.0, xf);
+	}
+	else if (e->Button == System::Windows::Forms::MouseButtons::Right)
+	{
+		GLdouble M[16], P[16];
+		GLint V[4];
+		glGetDoublev(GL_MODELVIEW_MATRIX, M);
+		glGetDoublev(GL_PROJECTION_MATRIX, P);
+		glGetIntegerv(GL_VIEWPORT, V);
+		
+		std::cout << "windows pos: "  << std::to_string(e->X) <<" " << std::to_string(e->Y) << std::endl;
+
+		point mouse;
+		mouse[0] = e->X;
+		mouse[1] = V[3] - e->Y;
+
+		std::cout << "opengl pos: " << std::to_string(mouse[0]) << " " << std::to_string(mouse[1]) << std::endl;
+
+		glReadPixels(mouse[0], mouse[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse[2]);
+		GLdouble near_point[3], far_point[3];
+		gluUnProject(mouse[0], mouse[1], mouse[2], M, P, V, &near_point[0], &near_point[1], &near_point[2]);
+
+		std::cout << "near pos: " << std::to_string(near_point[0]) << " " << std::to_string(near_point[1]) << " " << std::to_string(near_point[2]) << std::endl;
+
+		gluUnProject(mouse[0], mouse[1], 1.0, M, P, V, &far_point[0], &far_point[1], &far_point[2]);
+
+		std::cout << "far pos: " << std::to_string(far_point[0]) << " " << std::to_string(far_point[1]) << " " << std::to_string(far_point[2]) << std::endl;
+
+		mesh->FindNearVertex(near_point);
+
 	}
 }
 private: System::Void hkoglPanelControl1_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)

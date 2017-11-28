@@ -240,6 +240,7 @@ public:
 	void Render_Wireframe();
 	void Render_Point();
 
+	void FindNearVertex(GLdouble* pos);
 private:
 };
 
