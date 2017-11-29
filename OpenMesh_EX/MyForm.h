@@ -245,16 +245,10 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 		std::cout << "opengl pos: " << std::to_string(mouse[0]) << " " << std::to_string(mouse[1]) << std::endl;
 
 		glReadPixels(mouse[0], mouse[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse[2]);
-		GLdouble near_point[3], far_point[3];
-		gluUnProject(mouse[0], mouse[1], mouse[2], M, P, V, &near_point[0], &near_point[1], &near_point[2]);
-
-		std::cout << "near pos: " << std::to_string(near_point[0]) << " " << std::to_string(near_point[1]) << " " << std::to_string(near_point[2]) << std::endl;
-
-		gluUnProject(mouse[0], mouse[1], 1.0, M, P, V, &far_point[0], &far_point[1], &far_point[2]);
-
-		std::cout << "far pos: " << std::to_string(far_point[0]) << " " << std::to_string(far_point[1]) << " " << std::to_string(far_point[2]) << std::endl;
-
-		mesh->FindNearVertex(near_point);
+		GLdouble obj[3];
+		gluUnProject(mouse[0], mouse[1], mouse[2], M, P, V, &obj[0], &obj[1], &obj[2]);
+		std::cout << "obj pos: " << std::to_string(obj[0]) << " " << std::to_string(obj[1]) << " " << std::to_string(obj[2]) << std::endl;
+		mesh->FindNearFace(obj);
 
 	}
 }

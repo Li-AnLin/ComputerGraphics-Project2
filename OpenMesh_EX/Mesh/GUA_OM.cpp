@@ -510,12 +510,29 @@ void Tri_Mesh::Render_SolidWireframe()
 	glColor4f(1.0, 0.96, 0.49, 1.0);
 	for (f_it = faces_begin(); f_it != faces_end(); ++f_it) 
 	{
+		//bool find = false;
+		//for (int i = 0; i < selectedFaces.size(); i++)
+		//{
+		//	for (FVIter it = fv_iter(selectedFaces[i]); it; ++it)
+		//	{
+		//		if(point(it.handle).data()[0] == )
+		//	}
+		//}
+		if (std::find(selectedFaces.begin(), selectedFaces.end(), f_it) != selectedFaces.end())
+		{
+			std::cout << "in\n";
+			glColor4f(0, 1, 0, 1.0);
+		}
+		else
+			glColor4f(1.0, 0.96, 0.49, 1.0);
+
 		for (fv_it = fv_iter( f_it ); fv_it; ++fv_it)
 		{						
 			//glNormal3dv(normal(fv_it.handle()));
 			glVertex3dv(point(fv_it.handle()).data());
 		}
 	}
+
 	glEnd();
 	
 	//glDisable(GL_POLYGON_OFFSET_FILL);
@@ -537,7 +554,7 @@ void Tri_Mesh::Render_SolidWireframe()
 	}
 	glEnd();
 
-	//OMP::Model::RenderSpecifiedVertex();
+	//RenderSpecifiedFace();
 
 	glPopAttrib();
 }
@@ -577,13 +594,43 @@ void Tri_Mesh::Render_Point()
 	glEnd();
 }
 
-void Tri_Mesh::FindNearVertex(GLdouble * pos)
+void Tri_Mesh::FindNearFace(GLdouble * pos)
 {
-	VIter v_it;
-	for (v_it = vertices_begin(); v_it != vertices_end(); ++v_it)
+	FIter f_it, min_f_it;
+	FVIter	fv_it;
+	Point vertex;
+
+	double min_distance = -1;
+
+	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
 	{
-		Point vertex = point(v_it);
-		//std::cout << std::to_string(vertex[0]) << " " << std::to_string(vertex[1]) << " " << std::to_string(vertex[2]) << std::endl;
+		double distance = 0;
+		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+		{
+			vertex = point(fv_it.handle());
+			distance += ((pos[0] - vertex[0]) * (pos[0] - vertex[0])) + ((pos[1] - vertex[1]) * (pos[1] - vertex[1])) + ((pos[2] - vertex[2]) * (pos[2] - vertex[2]));
+
+			//std::cout << std::to_string(vertex[0]) << " " << std::to_string(vertex[1]) << " " << std::to_string(vertex[2]) << std::endl;
+		}
+
+		if (min_distance == -1 || distance < min_distance)
+		{
+			min_distance = distance;
+			min_f_it = f_it;
+		}			
+	}
+
+	for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
+		std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
+
+	selectedFaces.push_back(min_f_it);
+
+	std::cout << "list size: " << std::to_string(selectedFaces.size()) << std::endl;
+
+
+	if (std::find(selectedFaces.begin(), selectedFaces.end(), min_f_it) != selectedFaces.end())
+	{
+		std::cout << "yo"<< std::endl;
 	}
 }
 

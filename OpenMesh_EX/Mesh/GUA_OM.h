@@ -11,6 +11,9 @@
 #include <gl/gl.h>
 #include <gl/glu.h>
 
+//STL
+#include <algorithm>
+
 struct Face_InnerAngle
 {
 	double Vertex_Angle[3];
@@ -213,7 +216,7 @@ namespace OMP//OpenMesh Polygonal mesh
 	};
 }
 /*======================================================================*/
-class Tri_Mesh:public OMT::Model
+class Tri_Mesh: public OMP::Model//public OMT::Model
 {
 public:
 	Tri_Mesh()
@@ -234,13 +237,15 @@ public:
 	std::vector<OMT::VHandle>                  Minuspt     ;
 	std::vector<OMT::VHandle>                  Extrme_Pt   ;
 
+	std::vector<FIter> selectedFaces;
+
 
 	void Render_Solid();
 	void Render_SolidWireframe();
 	void Render_Wireframe();
 	void Render_Point();
 
-	void FindNearVertex(GLdouble* pos);
+	void FindNearFace(GLdouble* pos);
 private:
 };
 
