@@ -190,23 +190,23 @@ private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::
 	glMatrixMode(GL_MODELVIEW);
 	glMultMatrixd((double *)xf);
 	//Axis-------
-	//glPushMatrix();
-	//int length = 1000;
-	//glBegin(GL_LINES);
-	//glLineWidth(10.0);
-	//glColor4f(1.0, 0.0, 0.0, 1.0);
-	//glVertex3f(0, 0, 0);
-	//glVertex3f(length, 0, 0);
+	glPushMatrix();
+	int length = 1000;
+	glBegin(GL_LINES);
+	glLineWidth(10.0);
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glVertex3f(0, 0, 0);
+	glVertex3f(length, 0, 0);
 
-	//glColor4f(0.0, 1.0, 0.0, 1.0);
-	//glVertex3f(0, 0, 0);
-	//glVertex3f(0, length, 0);
+	glColor4f(0.0, 1.0, 0.0, 1.0);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, length, 0);
 
-	//glColor4f(0.0, 0.0, 1.0, 1.0);
-	//glVertex3f(0, 0, 0);
-	//glVertex3f(0, 0, length);
-	//glEnd();
-	//glPopMatrix();
+	glColor4f(0.0, 0.0, 1.0, 1.0);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 0, length);
+	glEnd();
+	glPopMatrix();
 	//----------
 
 	if (mesh != NULL)
@@ -250,6 +250,7 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 		std::cout << "obj pos: " << std::to_string(obj[0]) << " " << std::to_string(obj[1]) << " " << std::to_string(obj[2]) << std::endl;
 		mesh->FindNearFace(obj);
 
+		hkoglPanelControl1->Invalidate();
 	}
 }
 private: System::Void hkoglPanelControl1_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)

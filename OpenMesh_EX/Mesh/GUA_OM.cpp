@@ -493,39 +493,43 @@ void Tri_Mesh::Render_Solid()
 
 void Tri_Mesh::Render_SolidWireframe()
 {
+	std::cout << "in\n";
+
 	FIter f_it;
 	FVIter	fv_it;
 
-	/*glPointSize(8.0);
+	glPointSize(8.0);
 	glBegin(GL_POINTS);
 	glColor4f(1.0, 0.0, 0.0, 1.0);
-	glVertex3dv(point(vertex_handle(0)));
-	glEnd();*/
+	glVertex3dv(point(fv_iter(faces_begin()).handle()).data());
+	//glVertex3dv(point(vertex_handle(0)).data());
+	glEnd();
+
     glDisable(GL_LIGHTING);
 	glPushAttrib(GL_LIGHTING_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glEnable(GL_DEPTH_TEST);
 	glPolygonOffset(2.0, 2.0);
 	glBegin(GL_TRIANGLES);
+
+	glColor4f(0, 1, 0, 1.0);
+	//for (int i = 0; i < selectedFaces.size(); i++)
+	//{
+	//	f_it = selectedFaces[i];
+	//	for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+	//		glVertex3dv(point(fv_it.handle()).data());
+	//}
+
+	f_it = faces_begin();
+	for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+	{
+		glVertex3dv(point(fv_it.handle()).data());
+		std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
+	}
+		
 	glColor4f(1.0, 0.96, 0.49, 1.0);
 	for (f_it = faces_begin(); f_it != faces_end(); ++f_it) 
 	{
-		//bool find = false;
-		//for (int i = 0; i < selectedFaces.size(); i++)
-		//{
-		//	for (FVIter it = fv_iter(selectedFaces[i]); it; ++it)
-		//	{
-		//		if(point(it.handle).data()[0] == )
-		//	}
-		//}
-		if (std::find(selectedFaces.begin(), selectedFaces.end(), f_it) != selectedFaces.end())
-		{
-			std::cout << "in\n";
-			glColor4f(0, 1, 0, 1.0);
-		}
-		else
-			glColor4f(1.0, 0.96, 0.49, 1.0);
-
 		for (fv_it = fv_iter( f_it ); fv_it; ++fv_it)
 		{						
 			//glNormal3dv(normal(fv_it.handle()));
@@ -631,6 +635,23 @@ void Tri_Mesh::FindNearFace(GLdouble * pos)
 	if (std::find(selectedFaces.begin(), selectedFaces.end(), min_f_it) != selectedFaces.end())
 	{
 		std::cout << "yo"<< std::endl;
+
+		//glDisable(GL_LIGHTING);
+		//glPushAttrib(GL_LIGHTING_BIT);
+		//glEnable(GL_POLYGON_OFFSET_FILL);
+		//glEnable(GL_DEPTH_TEST);
+		//glPolygonOffset(2.0, 2.0);
+		//glBegin(GL_TRIANGLES);
+
+		//glColor4f(0.0, 1.0, 0.0, 1.0);
+		//for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
+		//{
+		//	glVertex3dv(point(fv_it.handle()).data());
+		//}
+
+		//glEnd();
+		//glDisable(GL_POLYGON_OFFSET_FILL);
+		//glPopAttrib();
 	}
 }
 

@@ -216,7 +216,7 @@ namespace OMP//OpenMesh Polygonal mesh
 	};
 }
 /*======================================================================*/
-class Tri_Mesh: public OMP::Model//public OMT::Model
+class Tri_Mesh: public OMP::Model
 {
 public:
 	Tri_Mesh()
