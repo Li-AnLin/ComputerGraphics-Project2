@@ -13,6 +13,12 @@
 
 //STL
 #include <algorithm>
+//eigen
+#include <Eigen\Sparse>
+
+#define PI 3.14159265
+
+using namespace Eigen;
 
 struct Face_InnerAngle
 {
@@ -216,9 +222,18 @@ namespace OMP//OpenMesh Polygonal mesh
 	};
 }
 /*======================================================================*/
-class Tri_Mesh: public OMP::Model
+class Tri_Mesh: public OMT::Model
 {
 public:
+
+	struct UV
+	{
+		GLdouble pos[2];
+		VHandle vhandle;
+		int state;
+		int ID;
+	};
+
 	Tri_Mesh()
 	{
 	
@@ -229,6 +244,7 @@ public:
 	
 	int                                        Constrain_num;
 	int                                        Boundary_num ;
+	int										   Boundary_type = 1;
 	OMT::VHandle                               start_vh,end_vh;
 	OMT::VHandle                               ExtremeVh[2];
 	int                                        PatchType;
@@ -238,14 +254,25 @@ public:
 	std::vector<OMT::VHandle>                  Extrme_Pt   ;
 
 	std::vector<FIter> selectedFaces;
+	std::vector<VHandle> selectedVertices;
 
+	std::vector<int> boundaryVertices;		//¬ö¿ý³»ÂIªºid
+	std::vector<int> innerVertices;
+	std::vector<UV> uv;
 
 	void Render_Solid();
 	void Render_SolidWireframe();
 	void Render_Wireframe();
 	void Render_Point();
+	void Render_UV();
 
 	void FindNearFace(GLdouble* pos);
+	void FindBoundaryVertices();
+	bool IsVertexVertex(VHandle _vj, VHandle _vi);
+	double CalculateWeight(int origin, std::vector<int> neighbor, double* weights);
+	void CalculateUVPosition();
+	int VertexToIndex(VHandle vh);
+	void LinearSolve();
 private:
 };
 

@@ -1,5 +1,24 @@
 #include "GUA_OM.h"
 
+double Distance(Tri_Mesh::Point A, Tri_Mesh::Point B)
+{
+	double distance;
+	distance = sqrt(((A[0] - B[0]) * (A[0] - B[0])) + ((A[1] - B[1]) * (A[1] - B[1])) + ((A[2] - B[2]) * (A[2] - B[2])));
+	return distance;
+}
+
+double CalculateArea(Tri_Mesh::Point A, Tri_Mesh::Point B, Tri_Mesh::Point C)
+{
+	double ab, bc, ca, S, area;
+	ab = Distance(A, B);
+	bc = Distance(B, C);
+	ca = Distance(C, A);
+	S = (ab + bc + ca) / 2.0;
+	area = sqrt(S * (S - ab) * (S - bc) * (S - ca));
+	//std::cout << "area " << std::to_string(area) << std::endl;
+	return area;
+}
+
 namespace OMT
 {
 	/*======================================================================*/
@@ -493,38 +512,22 @@ void Tri_Mesh::Render_Solid()
 
 void Tri_Mesh::Render_SolidWireframe()
 {
-	std::cout << "in\n";
-
 	FIter f_it;
 	FVIter	fv_it;
 
-	glPointSize(8.0);
-	glBegin(GL_POINTS);
-	glColor4f(1.0, 0.0, 0.0, 1.0);
-	glVertex3dv(point(fv_iter(faces_begin()).handle()).data());
-	//glVertex3dv(point(vertex_handle(0)).data());
-	glEnd();
-
+	//faces
     glDisable(GL_LIGHTING);
 	glPushAttrib(GL_LIGHTING_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glEnable(GL_DEPTH_TEST);
 	glPolygonOffset(2.0, 2.0);
 	glBegin(GL_TRIANGLES);
-
 	glColor4f(0, 1, 0, 1.0);
-	//for (int i = 0; i < selectedFaces.size(); i++)
-	//{
-	//	f_it = selectedFaces[i];
-	//	for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
-	//		glVertex3dv(point(fv_it.handle()).data());
-	//}
-
-	f_it = faces_begin();
-	for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+	for (int i = 0; i < selectedFaces.size(); i++)
 	{
-		glVertex3dv(point(fv_it.handle()).data());
-		std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
+		f_it = selectedFaces[i];
+		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+			glVertex3dv(point(fv_it.handle()).data());
 	}
 		
 	glColor4f(1.0, 0.96, 0.49, 1.0);
@@ -536,11 +539,11 @@ void Tri_Mesh::Render_SolidWireframe()
 			glVertex3dv(point(fv_it.handle()).data());
 		}
 	}
-
 	glEnd();
 	
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 
+	//edges
 	glPushAttrib(GL_LIGHTING_BIT);	
 	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
@@ -557,8 +560,6 @@ void Tri_Mesh::Render_SolidWireframe()
 		glVertex3dv(curVertex.data());			
 	}
 	glEnd();
-
-	//RenderSpecifiedFace();
 
 	glPopAttrib();
 }
@@ -598,60 +599,450 @@ void Tri_Mesh::Render_Point()
 	glEnd();
 }
 
-void Tri_Mesh::FindNearFace(GLdouble * pos)
+void Tri_Mesh::Render_UV()
 {
-	FIter f_it, min_f_it;
-	FVIter	fv_it;
-	Point vertex;
+	uv.clear();  //清空
 
-	double min_distance = -1;
+	FindBoundaryVertices();
 
-	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
+	Boundary_num = boundaryVertices.size();
+	Constrain_num = innerVertices.size();
+
+	uv.resize(Boundary_num + Constrain_num);
+	for (int i = 0; i < uv.size(); i++)
+		uv[i].state = 0;
+
+	std::cout << "boundary count " << std::to_string(boundaryVertices.size()) << std::endl;
+	std::cout << "inner count " << std::to_string(innerVertices.size()) << std::endl;
+
+	int id;
+	// unit circle
+	if (Boundary_type == 1)
 	{
-		double distance = 0;
-		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
-		{
-			vertex = point(fv_it.handle());
-			distance += ((pos[0] - vertex[0]) * (pos[0] - vertex[0])) + ((pos[1] - vertex[1]) * (pos[1] - vertex[1])) + ((pos[2] - vertex[2]) * (pos[2] - vertex[2]));
+		glPointSize(8.0);
+		glBegin(GL_POINTS);
+		glColor4f(0.0, 0.0, 1.0, 1.0);
+		double degree = 360 / boundaryVertices.size();
 
-			//std::cout << std::to_string(vertex[0]) << " " << std::to_string(vertex[1]) << " " << std::to_string(vertex[2]) << std::endl;
+		int num = 0, pos;
+		id = boundaryVertices[num];		//第一個
+		uv[id].pos[0] = 0.5 * cosf(num * degree * PI / 180);
+		uv[id].pos[1] = 0.5 * sinf(num * degree * PI / 180);
+		uv[id].vhandle = selectedVertices[id];
+		uv[id].state = 1;
+
+		pos = id;
+		Point position = point(selectedVertices[pos]);
+		std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+		std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
+		glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
+
+		num++;
+
+		while (num < Boundary_num)
+		{
+			//尋找他的鄰點且是在boundaryVertices裡面
+			for (VVIter vvit = vv_iter(selectedVertices[id]); vvit; ++vvit)
+			{
+				pos = VertexToIndex(vvit.handle()); //轉成id
+				if (pos != -1)
+				{
+					int tmp = std::find(boundaryVertices.begin(), boundaryVertices.end(), pos) - boundaryVertices.begin();
+					if (tmp != -1 && uv[pos].state == 0)
+					{
+						//pos是boundaryVertices且尚未拜訪
+						uv[pos].pos[0] = 0.5 * cosf(num * degree * PI / 180);
+						uv[pos].pos[1] = 0.5 * sinf(num * degree * PI / 180);
+						uv[pos].vhandle = selectedVertices[pos];
+						uv[pos].state = 1;
+
+						Point position = point(selectedVertices[pos]);
+						std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+						std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
+						glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
+
+						num++;
+						id = pos;
+						break;
+					}
+				}
+
+			}
 		}
 
-		if (min_distance == -1 || distance < min_distance)
+		//for (int i = 0; i < boundaryVertices.size(); i++)
+		//{
+		//	id = boundaryVertices[i];
+		//	uv[id].pos[0] = 0.5 * cosf(i * degree * PI / 180);
+		//	uv[id].pos[1] = 0.5 * sinf(i * degree * PI / 180);
+		//	uv[id].vhandle = selectedVertices[id];
+		//	Point position = point(selectedVertices[id]);
+		//	std::cout << std::to_string(id) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+		//	std::cout << std::to_string(id) << " uv pos " << std::to_string(uv[id].pos[0]) << " " <<  std::to_string(uv[id].pos[1]) << std::endl;
+		//	glVertex2f(uv[id].pos[0], uv[id].pos[1]);
+		//}
+		glEnd();
+	}
+	else
+	{
+		//unit square
+		double clen = 0.0, state = 0;
+		for (int i = 0; i < Boundary_num; i++)
 		{
-			min_distance = distance;
-			min_f_it = f_it;
-		}			
+			if (clen < 1.0)
+			{
+				uv[i].pos[0] = clen;
+				uv[i].pos[1] = 0.0;
+			}
+			else if (clen >= 1.0 && clen < 2.0)
+			{
+				if (state == 0)
+				{
+					clen = 1.0;
+					uv[i].pos[0] = 1.0;
+					uv[i].pos[1] = 0.0;
+					state = 1;
+				}
+				else
+				{
+					uv[i].pos[0] = 1.0;
+					uv[i].pos[1] = clen -1.0;
+				}
+			}
+			else if (clen >= 2.0 && clen < 3.0)
+			{
+				if (state == 1)
+				{
+					clen = 2.0;
+					uv[i].pos[0] = 1.0;
+					uv[i].pos[1] = 1.0;
+					state = 2;
+				}
+				else
+				{
+					uv[i].pos[0] = 3.0 - clen;
+					uv[i].pos[1] =1.0;
+				}
+			}
+			else if (clen >= 3.0)
+			{
+				if (state == 2)
+				{
+					clen = 3.0;
+					uv[i].pos[0] = 0.0;
+					uv[i].pos[1] = 1.0;
+					state = 3;
+				}
+				else
+				{
+					uv[i].pos[0] = 0.0;
+					uv[i].pos[1] = 4.0 - clen;
+				}
+			}
+		}
 	}
 
-	for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
-		std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
+	CalculateUVPosition();	
 
-	selectedFaces.push_back(min_f_it);
-
-	std::cout << "list size: " << std::to_string(selectedFaces.size()) << std::endl;
-
-
-	if (std::find(selectedFaces.begin(), selectedFaces.end(), min_f_it) != selectedFaces.end())
+	//畫線
+	//edges
+	glPushAttrib(GL_LIGHTING_BIT);
+	glDisable(GL_LIGHTING);
+	glLineWidth(1.0);
+	glColor3f(0.0, 0.0, 0.0);
+	for (OMT::EIter e_it = edges_begin(); e_it != edges_end(); ++e_it)
 	{
-		std::cout << "yo"<< std::endl;
+		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(), 1);
 
-		//glDisable(GL_LIGHTING);
-		//glPushAttrib(GL_LIGHTING_BIT);
-		//glEnable(GL_POLYGON_OFFSET_FILL);
-		//glEnable(GL_DEPTH_TEST);
-		//glPolygonOffset(2.0, 2.0);
-		//glBegin(GL_TRIANGLES);
+		OMT::VHandle curVertex = from_vertex_handle(_hedge);
+		OMT::VHandle nexVertex = to_vertex_handle(_hedge);
+		//判斷此點是否有
+		int cur = VertexToIndex(curVertex);
+		int nex = VertexToIndex(nexVertex);
+		if (cur != -1 && nex != -1)
+		{
+			glBegin(GL_LINES);
+			glVertex2f(uv[cur].pos[0], uv[cur].pos[1]);
+			glVertex2f(uv[nex].pos[0], uv[nex].pos[1]);
+			std::cout << "cur " << std::to_string(cur) << " nex " << std::to_string(nex) << std::endl;
+			glEnd();
+		}
+	}
+	glPopAttrib();
+}
 
-		//glColor4f(0.0, 1.0, 0.0, 1.0);
-		//for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
-		//{
-		//	glVertex3dv(point(fv_it.handle()).data());
-		//}
+void Tri_Mesh::FindNearFace(GLdouble * pos)
+{
+	FIter f_it, min_f_it = faces_begin();
+	FVIter	fv_it, fv_it_2;
+	Point points[3], pointMouse, vertex;
+	int i;
 
-		//glEnd();
-		//glDisable(GL_POLYGON_OFFSET_FILL);
-		//glPopAttrib();
+	pointMouse[0] = pos[0], pointMouse[1] = pos[1], pointMouse[2] = pos[2];
+	
+	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
+	{
+		double total_area = 0, area;
+
+		for (fv_it = fv_iter(f_it), i = 0; fv_it; ++fv_it, i++)
+			points[i] = point(fv_it.handle());
+
+		total_area += CalculateArea(pointMouse, points[0], points[1]);
+		total_area += CalculateArea(pointMouse, points[0], points[2]);
+		total_area += CalculateArea(pointMouse, points[1], points[2]);
+
+		area = CalculateArea(points[0], points[1], points[2]);
+
+		if (abs( area - total_area) < 0.000001)
+		{
+			min_f_it = f_it;
+			break;
+		}
+	}
+
+	//紀錄面
+	if (std::find(selectedFaces.begin(), selectedFaces.end(), min_f_it) == selectedFaces.end())
+	{
+		selectedFaces.push_back(min_f_it);
+		std::cout << "size: " << std::to_string(selectedFaces.size()) << "\nnearest face" << std::endl;
+		for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
+		{
+			std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
+		}
+
+	}
+	//else
+	//{
+	//	//std::cout << "cancel this face\n";
+	//	//for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
+	//	//	std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
+	//}
+}
+
+//判斷是否鄰邊
+bool Tri_Mesh::IsVertexVertex(VHandle _vj, VHandle _vi)
+{
+	for (VVIter vvit = vv_iter(_vi); vvit; ++vvit)
+		if (vvit.handle() == _vj)
+			return true;
+	return false;
+}
+
+double Tri_Mesh::CalculateWeight(int origin, std::vector<int> neighbor, double* weights)
+{
+	double total_weight = 0;
+
+	for (int i = 0; i < neighbor.size(); i++)
+	{
+		weights[neighbor[i]] = 1;
+		//std::cout << std::to_string(*(weights+1)) << "\n";
+		total_weight = total_weight + (*(weights + neighbor[i]));
+	}
+	//std::cout << "total weight " << std::to_string(total_weight) << std::endl;
+	return total_weight;
+}
+
+void Tri_Mesh::CalculateUVPosition()
+{
+	SparseMatrix<double> A(Constrain_num, Constrain_num);
+	std::vector<VectorXd> B;
+	B.resize(2);
+
+	B[0].resize(Constrain_num);
+	B[1].resize(Constrain_num);
+
+	for (int v = 0; v < Constrain_num; v++)
+	{
+		int vid = innerVertices[v];
+		//先找與它相鄰的頂點
+		std::vector<int> neighbor;
+		//std::vector<int> innerNeighbor;
+		int id;
+		for (VVIter vvit = vv_iter(selectedVertices[vid]); vvit; ++vvit)
+		{
+			id = VertexToIndex(vvit.handle());
+			//如果鄰點是boundary
+			if (std::find(boundaryVertices.begin(), boundaryVertices.end(), id) != boundaryVertices.end())
+			{
+				neighbor.push_back(id);
+			}
+			else if (std::find(innerVertices.begin(), innerVertices.end(), id) != innerVertices.end())
+			{
+				//鄰點也是inner
+				neighbor.push_back(id);
+				//innerNeighbor.push_back(id);
+			}
+		}
+
+		//計算全部的權重
+		double* weights = new double[selectedVertices.size()];
+		for (int i = 0; i < selectedVertices.size(); i++)
+			weights[i] = 0;
+		double total_wieght = CalculateWeight(vid, neighbor, weights);
+
+		//放入A
+		int innerID;
+		for (int i = 0; i < Constrain_num; i++)
+		{
+			innerID = innerVertices[i];
+			if (innerID == vid)
+				A.insert(v, i) = total_wieght;
+			else
+				A.insert(v, i) = -weights[innerID];
+		}
+		//計算B
+		int neighborID;
+		double sumU = 0.0, sumV = 0.0;
+		for (int i = 0; i < Boundary_num; i++)
+		{
+			neighborID = boundaryVertices[i];
+			sumU += (weights[neighborID] * uv[neighborID].pos[0]);
+			sumV += (weights[neighborID] * uv[neighborID].pos[1]);
+		}
+		//放入B
+		B[0][v] = sumU;
+		B[1][v] = sumV;
+		//std::cout << " sum U " << std::to_string(sumU) << std::endl;
+		//std::cout << " sum V " << std::to_string(sumV) << std::endl;
+	}
+
+	//debug A
+	//for (int i = 0; i < Constrain_num; i++)
+	//{
+	//	for (int j = 0; j < Constrain_num; j++)
+	//		std::cout << std::to_string(A.data().at(0,0)) << " ";
+	//	std::cout << "\n";
+	//}
+	//end debug
+
+	
+	A.makeCompressed();
+
+	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
+	linearSolver.compute(A);
+
+	std::vector<VectorXd> X;
+	X.resize(2);
+
+	X[0] = linearSolver.solve(B[0]);
+	X[1] = linearSolver.solve(B[1]);
+
+	int id;
+	glPointSize(8.0);
+	glBegin(GL_POINTS);
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	for (int i = 0; i < Constrain_num; i++)
+	{
+		id = innerVertices[i];
+		uv[id].pos[0] = X[0][i];
+		uv[id].pos[1] = X[1][i];
+		uv[id].vhandle = selectedVertices[id];
+		std::cout << std::to_string(id) << " uv pos " << std::to_string(uv[id].pos[0]) << std::to_string(uv[id].pos[1]) << std::endl;
+		glVertex2f(uv[id].pos[0], uv[id].pos[1]);
+	}
+	glEnd();
+
+	//LinearSolve();
+}
+
+//頂點轉換成ID
+int Tri_Mesh::VertexToIndex(VHandle vh)
+{
+	//int pos = -1;
+	//Point vp = point(vh), tmp;
+
+	//for (int i = 0; i < selectedVertices.size(); i++)
+	//{
+	//	tmp = point(selectedVertices[i]);
+	//	if (tmp.data()[0] == vp.data()[0] && tmp.data()[1] == vp.data()[1] && tmp.data()[2] == vp.data()[2])
+	//	{
+	//		pos = i;
+	//		break;
+	//	}
+	//}
+
+	ptrdiff_t pos = std::find(selectedVertices.begin(), selectedVertices.end(), vh) - selectedVertices.begin();
+
+	if (pos >= selectedVertices.size())
+		return -1;
+	else
+		return pos;
+
+	return pos;
+}
+
+void Tri_Mesh::LinearSolve()
+{
+	SparseMatrix<double> A(1, 1);
+	A.insert(0, 0) = 6.0;
+
+	A.makeCompressed();
+
+	std::vector<VectorXd> B;
+	B.resize(2);
+
+	B[0].resize(1);
+	B[1].resize(1);
+
+	B[0][0] = 0.0;
+	B[1][0] = 0.0;
+
+	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
+	linearSolver.compute(A);
+
+	std::vector<VectorXd> X;
+	X.resize(2);
+	X[0] = linearSolver.solve(B[0]);
+	X[1] = linearSolver.solve(B[0]);
+
+	std::cout << "test\n";
+	std::cout << std::to_string(X[0][0]) << std::endl;
+	std::cout << std::to_string(X[1][0]) << std::endl;
+}
+
+void Tri_Mesh::FindBoundaryVertices()
+{
+	boundaryVertices.clear();
+	innerVertices.clear();
+	selectedVertices.clear();
+
+	FVIter	fv_it;
+	//找全部的點
+	for (int f_it = 0; f_it < selectedFaces.size(); ++f_it)
+	{
+		for (fv_it = fv_iter(selectedFaces[f_it]); fv_it; ++fv_it)
+		{
+			//紀錄頂點
+			if (std::find(selectedVertices.begin(), selectedVertices.end(), fv_it.handle()) == selectedVertices.end())
+			{
+				selectedVertices.push_back(fv_it.handle());
+			}
+		}
+	}
+
+	//尋找boundary
+	bool found;
+	for (int v = 0; v < selectedVertices.size();v++)
+	{
+		found = false;
+		//此點的所有鄰點
+		for (VVIter vvit = vv_iter(selectedVertices[v]); vvit; ++vvit)
+		{
+			if (std::find(selectedVertices.begin(), selectedVertices.end(), vvit.handle()) == selectedVertices.end())
+			{
+				//有鄰點不在vector裡面，是boundary
+				std::cout << "boundary " << std::to_string(v) << std::endl;
+				boundaryVertices.push_back(v);
+				found = true;
+				break;
+			}
+		}
+		//內部點
+		if (!found)
+		{
+			std::cout << "inner " << std::to_string(v) << std::endl;
+			innerVertices.push_back(v);
+		}
 	}
 }
 

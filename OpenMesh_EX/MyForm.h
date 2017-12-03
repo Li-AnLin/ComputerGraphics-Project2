@@ -58,6 +58,8 @@ namespace OpenMesh_EX {
 	private: System::Windows::Forms::SaveFileDialog^  saveModelDialog;
 	private: System::Windows::Forms::ToolStripMenuItem^  saveModelToolStripMenuItem;
 	private: HKOGLPanel::HKOGLPanelControl^  hkoglPanelControl1;
+	private: System::Windows::Forms::Panel^  panel1;
+	private: HKOGLPanel::HKOGLPanelControl^  hkoglPanelControl2;
 	protected:
 
 	private:
@@ -75,6 +77,8 @@ namespace OpenMesh_EX {
 		{
 			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting1 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
 			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat1 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
+			HKOGLPanel::HKCOGLPanelCameraSetting^  hkcoglPanelCameraSetting2 = (gcnew HKOGLPanel::HKCOGLPanelCameraSetting());
+			HKOGLPanel::HKCOGLPanelPixelFormat^  hkcoglPanelPixelFormat2 = (gcnew HKOGLPanel::HKCOGLPanelPixelFormat());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->loadModelToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -82,7 +86,10 @@ namespace OpenMesh_EX {
 			this->openModelDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->saveModelDialog = (gcnew System::Windows::Forms::SaveFileDialog());
 			this->hkoglPanelControl1 = (gcnew HKOGLPanel::HKOGLPanelControl());
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->hkoglPanelControl2 = (gcnew HKOGLPanel::HKOGLPanelControl());
 			this->menuStrip1->SuspendLayout();
+			this->panel1->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -136,7 +143,7 @@ namespace OpenMesh_EX {
 			hkcoglPanelCameraSetting1->Near = -1000;
 			hkcoglPanelCameraSetting1->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
 			this->hkoglPanelControl1->Camera_Setting = hkcoglPanelCameraSetting1;
-			this->hkoglPanelControl1->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->hkoglPanelControl1->Dock = System::Windows::Forms::DockStyle::Left;
 			this->hkoglPanelControl1->Location = System::Drawing::Point(0, 27);
 			this->hkoglPanelControl1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
 			this->hkoglPanelControl1->Name = L"hkoglPanelControl1";
@@ -144,7 +151,7 @@ namespace OpenMesh_EX {
 			hkcoglPanelPixelFormat1->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
 			hkcoglPanelPixelFormat1->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
 			this->hkoglPanelControl1->Pixel_Format = hkcoglPanelPixelFormat1;
-			this->hkoglPanelControl1->Size = System::Drawing::Size(817, 541);
+			this->hkoglPanelControl1->Size = System::Drawing::Size(559, 541);
 			this->hkoglPanelControl1->TabIndex = 2;
 			this->hkoglPanelControl1->Load += gcnew System::EventHandler(this, &MyForm::hkoglPanelControl1_Load);
 			this->hkoglPanelControl1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::hkoglPanelControl1_Paint);
@@ -152,11 +159,42 @@ namespace OpenMesh_EX {
 			this->hkoglPanelControl1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::hkoglPanelControl1_MouseMove);
 			this->hkoglPanelControl1->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::hkoglPanelControl1_MouseWheel);
 			// 
+			// panel1
+			// 
+			this->panel1->Controls->Add(this->hkoglPanelControl2);
+			this->panel1->Dock = System::Windows::Forms::DockStyle::Right;
+			this->panel1->Location = System::Drawing::Point(567, 27);
+			this->panel1->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(250, 541);
+			this->panel1->TabIndex = 3;
+			// 
+			// hkoglPanelControl2
+			// 
+			hkcoglPanelCameraSetting2->Far = 1000;
+			hkcoglPanelCameraSetting2->Fov = 45;
+			hkcoglPanelCameraSetting2->Near = -1000;
+			hkcoglPanelCameraSetting2->Type = HKOGLPanel::HKCOGLPanelCameraSetting::CAMERATYPE::ORTHOGRAPHIC;
+			this->hkoglPanelControl2->Camera_Setting = hkcoglPanelCameraSetting2;
+			this->hkoglPanelControl2->Dock = System::Windows::Forms::DockStyle::Bottom;
+			this->hkoglPanelControl2->Location = System::Drawing::Point(0, 291);
+			this->hkoglPanelControl2->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->hkoglPanelControl2->Name = L"hkoglPanelControl2";
+			hkcoglPanelPixelFormat2->Accumu_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat2->Alpha_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			hkcoglPanelPixelFormat2->Stencil_Buffer_Bits = HKOGLPanel::HKCOGLPanelPixelFormat::PIXELBITS::BITS_0;
+			this->hkoglPanelControl2->Pixel_Format = hkcoglPanelPixelFormat2;
+			this->hkoglPanelControl2->Size = System::Drawing::Size(250, 250);
+			this->hkoglPanelControl2->TabIndex = 0;
+			this->hkoglPanelControl2->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::hkoglPanelControl2_Paint);
+			this->hkoglPanelControl2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::hkoglPanelControl2_KeyDown);
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 15);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(817, 568);
+			this->Controls->Add(this->panel1);
 			this->Controls->Add(this->hkoglPanelControl1);
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
@@ -165,11 +203,43 @@ namespace OpenMesh_EX {
 			this->Text = L"OpenMesh_EX";
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
+			this->panel1->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
 		}
 #pragma endregion
+
+//hkog panel control 2
+private: System::Void hkoglPanelControl2_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
+{
+	if (e->KeyCode == Keys::U)
+	{
+		std::cout << "key down U\n";
+		hkoglPanelControl2->Invalidate();
+	}
+}
+
+private: System::Void hkoglPanelControl2_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e)
+{
+	glEnable(GL_COLOR_MATERIAL);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glOrtho(-2, 2, -2, 2, -1.0, 1.0);
+
+	glPushMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	if (mesh != NULL)
+		mesh->Render_UV();
+
+	glPopMatrix();
+}
+
+//hkog panel control 1
 private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::EventArgs^  e)
 {
 
@@ -230,24 +300,24 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 	}
 	else if (e->Button == System::Windows::Forms::MouseButtons::Right)
 	{
-		GLdouble M[16], P[16];
+		GLdouble M[16] = { 0 }, P[16];
 		GLint V[4];
+
+		glPushMatrix();
+		glMultMatrixd((double *)xf);
+		glGetIntegerv(GL_VIEWPORT, V);
 		glGetDoublev(GL_MODELVIEW_MATRIX, M);
 		glGetDoublev(GL_PROJECTION_MATRIX, P);
-		glGetIntegerv(GL_VIEWPORT, V);
+		glPopMatrix();
 		
-		std::cout << "windows pos: "  << std::to_string(e->X) <<" " << std::to_string(e->Y) << std::endl;
-
 		point mouse;
 		mouse[0] = e->X;
 		mouse[1] = V[3] - e->Y;
 
-		std::cout << "opengl pos: " << std::to_string(mouse[0]) << " " << std::to_string(mouse[1]) << std::endl;
-
 		glReadPixels(mouse[0], mouse[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse[2]);
 		GLdouble obj[3];
 		gluUnProject(mouse[0], mouse[1], mouse[2], M, P, V, &obj[0], &obj[1], &obj[2]);
-		std::cout << "obj pos: " << std::to_string(obj[0]) << " " << std::to_string(obj[1]) << " " << std::to_string(obj[2]) << std::endl;
+		//std::cout << "world pos: " << std::to_string(obj[0]) << " " << std::to_string(obj[1]) << " " << std::to_string(obj[2]) << std::endl;
 		mesh->FindNearFace(obj);
 
 		hkoglPanelControl1->Invalidate();
