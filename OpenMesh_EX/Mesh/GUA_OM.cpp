@@ -605,6 +605,9 @@ void Tri_Mesh::Render_UV()
 
 	FindBoundaryVertices();
 
+	if (Boundary_num == 0)
+		return;
+
 	Boundary_num = boundaryVertices.size();
 	Constrain_num = innerVertices.size();
 
@@ -671,8 +674,8 @@ void Tri_Mesh::Render_UV()
 
 						if (num * degree < 1)
 						{
-							x = 0;
-							y = num * degree;
+							x = num * degree;
+							y = 0;
 						}
 						else if (num * degree < 2)
 						{
@@ -712,6 +715,9 @@ void Tri_Mesh::Render_UV()
 
 		}
 	}
+
+	//glColor4f(0.0, 0.5, 0.5, 1.0);
+	//glVertex2f(0.0, 0.5);
 	glEnd();
 
 	CalculateUVPosition();
