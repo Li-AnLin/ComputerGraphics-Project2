@@ -55,15 +55,15 @@ namespace OMP
 	{
 		bool isRead = false;
 		OpenMesh::IO::Options opt;
-		if ( OpenMesh::IO::read_mesh(Mesh, _fileName, opt) )
+		if (OpenMesh::IO::read_mesh(Mesh, _fileName, opt))
 		{
 			//read mesh from filename OK!
 			isRead = true;
 		}
-		if(isRead)
+		if (isRead)
 		{
 			// If the file did not provide vertex normals and mesh has vertex normal ,then calculate them
-			if (!opt.check( OpenMesh::IO::Options::VertexNormal ) && Mesh.has_vertex_normals())
+			if (!opt.check(OpenMesh::IO::Options::VertexNormal) && Mesh.has_vertex_normals())
 			{
 				Mesh.update_normals();
 			}
@@ -74,7 +74,7 @@ namespace OMP
 	{
 		bool isSave = false;
 		OpenMesh::IO::Options opt;
-		if ( OpenMesh::IO::write_mesh(Mesh, _fileName, opt) )
+		if (OpenMesh::IO::write_mesh(Mesh, _fileName, opt))
 		{
 			//read mesh from filename OK!
 			isSave = true;
@@ -92,33 +92,33 @@ namespace OMP
 		glPolygonOffset(2.0, 2.0);
 		glBegin(GL_POLYGON);
 		//glColor4f(1.0, 0.5, 1.0, 0.5);
-		for (f_it = Mesh.faces_begin(); f_it != Mesh.faces_end(); ++f_it) 
+		for (f_it = Mesh.faces_begin(); f_it != Mesh.faces_end(); ++f_it)
 		{
-			for (fv_it = Mesh.fv_iter( f_it ); fv_it; ++fv_it)
-			{						
+			for (fv_it = Mesh.fv_iter(f_it); fv_it; ++fv_it)
+			{
 				glNormal3dv(Mesh.normal(fv_it.handle()).data());
 				glVertex3dv(Mesh.point(fv_it.handle()).data());
 			}
 		}
-		glEnd();		
+		glEnd();
 		glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 	void Model::Render_wireframe()
 	{
 		MyMesh::HalfedgeHandle _hedge;
-		EIter e_it=Mesh.edges_begin();
+		EIter e_it = Mesh.edges_begin();
 
 		glDisable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
 		glColor3f(0.0, 0.0, 0.0);
 		glLineWidth(1);
 		glBegin(GL_LINES);
-		for(e_it=Mesh.edges_begin(); e_it != Mesh.edges_end(); ++e_it)
+		for (e_it = Mesh.edges_begin(); e_it != Mesh.edges_end(); ++e_it)
 		{
-			_hedge = Mesh.halfedge_handle(e_it.handle(),1);
+			_hedge = Mesh.halfedge_handle(e_it.handle(), 1);
 
 			glVertex3dv(Mesh.point(Mesh.from_vertex_handle(_hedge)).data());
-			glVertex3dv(Mesh.point(Mesh.to_vertex_handle(_hedge)).data());			
+			glVertex3dv(Mesh.point(Mesh.to_vertex_handle(_hedge)).data());
 		}
 		glEnd();
 		glEnable(GL_LIGHTING);
@@ -161,7 +161,7 @@ namespace OMP
 	void Model::RenderSpecifiedFace()
 	{
 		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glPushAttrib(GL_LIGHTING_BIT);
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(0.5, 1.0);
@@ -173,16 +173,16 @@ namespace OMP
 		for (f_itr = sp_f_list.begin(); f_itr != sp_f_list.end(); ++f_itr)
 		{
 			glColor3f(f_itr->r, f_itr->g, f_itr->b);
-			for (fv_itr=Mesh.fv_iter(f_itr->fh); fv_itr; ++fv_itr)
-			{						
+			for (fv_itr = Mesh.fv_iter(f_itr->fh); fv_itr; ++fv_itr)
+			{
 				glNormal3dv(Mesh.normal(fv_itr.handle()).data());
 				glVertex3dv(Mesh.point(fv_itr.handle()).data());
 			}
 		}
-		glEnd();		
+		glEnd();
 		glEnable(GL_LIGHTING);
 		glDisable(GL_POLYGON_OFFSET_FILL);
-		glPolygonMode(GL_FRONT,GL_FILL);
+		glPolygonMode(GL_FRONT, GL_FILL);
 		glEnable(GL_CULL_FACE);
 	}
 
@@ -257,7 +257,7 @@ namespace OMP
 	}
 	void Model::deleteFace(VHandle _v0, VHandle _v1, VHandle _v2, VHandle _v3)
 	{
-		/* 
+		/*
 		v1				v0
 		*<--------------*
 		|				|
@@ -283,10 +283,10 @@ namespace OMP
 		}
 	}
 	/*======================================================================*/
-	bool Model::IsVertexVertex( VHandle _vj, VHandle _vi)
+	bool Model::IsVertexVertex(VHandle _vj, VHandle _vi)
 	{
-		for( VVIter vvit = Mesh.vv_iter(_vi) ; vvit ; ++vvit )
-			if( vvit.handle() == _vj )
+		for (VVIter vvit = Mesh.vv_iter(_vi); vvit; ++vvit)
+			if (vvit.handle() == _vj)
 				return true;
 		return false;
 	}
@@ -296,10 +296,10 @@ namespace OMP
 		/*----------------------------------------------------------------------*/
 		//這段是為了解決index問題
 		VHandle vq, vw, vt, vr;
-		vq	 = addVertex(Point(0, 0, 100));
-		vw	 = addVertex(Point(1, 0, 100));
-		vt	 = addVertex(Point(1, 1, 100));
-		vr	 = addVertex(Point(0, 1, 100));
+		vq = addVertex(Point(0, 0, 100));
+		vw = addVertex(Point(1, 0, 100));
+		vt = addVertex(Point(1, 1, 100));
+		vr = addVertex(Point(0, 1, 100));
 		addFace(vq, vw, vt, vr);
 		/*----------------------------------------------------------------------*/
 		/*收集需要subdivision的face*/
@@ -314,7 +314,7 @@ namespace OMP
 		last_found_face.push_back(Mesh.face_handle(_face_id));
 		table[_face_id] = true;
 
-		while(last_found_face.size() != 0)
+		while (last_found_face.size() != 0)
 		{
 			vector< FHandle > new_found_faces;
 			for (vector< FHandle >::iterator crnt_f = last_found_face.begin(); crnt_f != last_found_face.end(); ++crnt_f)
@@ -340,7 +340,7 @@ namespace OMP
 		/*
 			v0		vd		v3
 			*-------*-------*
-			|		|		|	 
+			|		|		|
 			|		|		|
 			|	  ve|		|
 		  va*-------*-------*vc
@@ -348,7 +348,7 @@ namespace OMP
 			|		|		|
 			|		|		|
 			*-------*-------*
-			v1		vb		v2		
+			v1		vb		v2
 		*/
 		for (vector< FHandle >::iterator face_itr = candidate_faces.begin(); face_itr != candidate_faces.end(); ++face_itr)
 		{
@@ -360,11 +360,11 @@ namespace OMP
 			}
 
 			deleteFace(v[0], v[1], v[2], v[3]);
-			va	 = addVertex((Mesh.point(v[0])+Mesh.point(v[1]))/2);
-			vb	 = addVertex((Mesh.point(v[1])+Mesh.point(v[2]))/2);
-			vc	 = addVertex((Mesh.point(v[2])+Mesh.point(v[3]))/2);
-			vd	 = addVertex((Mesh.point(v[3])+Mesh.point(v[0]))/2);
-			ve	 = addVertex((Mesh.point(v[0])+Mesh.point(v[1])+Mesh.point(v[2])+Mesh.point(v[3]))/4);
+			va = addVertex((Mesh.point(v[0]) + Mesh.point(v[1])) / 2);
+			vb = addVertex((Mesh.point(v[1]) + Mesh.point(v[2])) / 2);
+			vc = addVertex((Mesh.point(v[2]) + Mesh.point(v[3])) / 2);
+			vd = addVertex((Mesh.point(v[3]) + Mesh.point(v[0])) / 2);
+			ve = addVertex((Mesh.point(v[0]) + Mesh.point(v[1]) + Mesh.point(v[2]) + Mesh.point(v[3])) / 4);
 			addFace(vd, v[0], va, ve);
 			addFace(va, v[1], vb, ve);
 			addFace(vb, v[2], vc, ve);
@@ -380,10 +380,10 @@ namespace OMP
 		/*----------------------------------------------------------------------*/
 		//這段是為了解決index問題
 		VHandle vq, vw, vt, vr;
-		vq	 = addVertex(Point(0, 0, 100));
-		vw	 = addVertex(Point(1, 0, 100));
-		vt	 = addVertex(Point(1, 1, 100));
-		vr	 = addVertex(Point(0, 1, 100));
+		vq = addVertex(Point(0, 0, 100));
+		vw = addVertex(Point(1, 0, 100));
+		vt = addVertex(Point(1, 1, 100));
+		vr = addVertex(Point(0, 1, 100));
 		addFace(vq, vw, vt, vr);
 		/*----------------------------------------------------------------------*/
 		/*收集需要subdivision的face*/
@@ -398,7 +398,7 @@ namespace OMP
 		last_found_face.push_back(Mesh.face_handle(_face_id));
 		table[_face_id] = true;
 
-		while(last_found_face.size() != 0)
+		while (last_found_face.size() != 0)
 		{
 			vector< FHandle > new_found_faces;
 			for (vector< FHandle >::iterator crnt_f = last_found_face.begin(); crnt_f != last_found_face.end(); ++crnt_f)
@@ -436,7 +436,7 @@ namespace OMP
 			|		|		|		|
 			|		|		|		|
 			*-------*-------*-------*
-			v1		vc		vd		v2		
+			v1		vc		vd		v2
 		*/
 		for (vector< FHandle >::iterator face_itr = candidate_faces.begin(); face_itr != candidate_faces.end(); ++face_itr)
 		{
@@ -448,19 +448,19 @@ namespace OMP
 			}
 
 			deleteFace(v[0], v[1], v[2], v[3]);
-			va	 = addVertex((Mesh.point(v[0])*2+Mesh.point(v[1])  )/3);
-			vb	 = addVertex((Mesh.point(v[0])  +Mesh.point(v[1])*2)/3);
-			vc	 = addVertex((Mesh.point(v[1])*2+Mesh.point(v[2])  )/3);
-			vd	 = addVertex((Mesh.point(v[1])  +Mesh.point(v[2])*2)/3);
-			ve	 = addVertex((Mesh.point(v[2])*2+Mesh.point(v[3])  )/3);
-			vf	 = addVertex((Mesh.point(v[2])  +Mesh.point(v[3])*2)/3);
-			vg	 = addVertex((Mesh.point(v[3])*2+Mesh.point(v[0])  )/3);
-			vh	 = addVertex((Mesh.point(v[3])  +Mesh.point(v[0])*2)/3);
+			va = addVertex((Mesh.point(v[0]) * 2 + Mesh.point(v[1])) / 3);
+			vb = addVertex((Mesh.point(v[0]) + Mesh.point(v[1]) * 2) / 3);
+			vc = addVertex((Mesh.point(v[1]) * 2 + Mesh.point(v[2])) / 3);
+			vd = addVertex((Mesh.point(v[1]) + Mesh.point(v[2]) * 2) / 3);
+			ve = addVertex((Mesh.point(v[2]) * 2 + Mesh.point(v[3])) / 3);
+			vf = addVertex((Mesh.point(v[2]) + Mesh.point(v[3]) * 2) / 3);
+			vg = addVertex((Mesh.point(v[3]) * 2 + Mesh.point(v[0])) / 3);
+			vh = addVertex((Mesh.point(v[3]) + Mesh.point(v[0]) * 2) / 3);
 
-			vi	 = addVertex((Mesh.point(vh)*2+Mesh.point(vc)  )/3);
-			vj	 = addVertex((Mesh.point(vh)  +Mesh.point(vc)*2)/3);
-			vk	 = addVertex((Mesh.point(vd)*2+Mesh.point(vg)  )/3);
-			vl	 = addVertex((Mesh.point(vd)  +Mesh.point(vg)*2)/3);
+			vi = addVertex((Mesh.point(vh) * 2 + Mesh.point(vc)) / 3);
+			vj = addVertex((Mesh.point(vh) + Mesh.point(vc) * 2) / 3);
+			vk = addVertex((Mesh.point(vd) * 2 + Mesh.point(vg)) / 3);
+			vl = addVertex((Mesh.point(vd) + Mesh.point(vg) * 2) / 3);
 			addFace(v[0], va, vi, vh);
 			addFace(va, vb, vj, vi);
 			addFace(vb, v[1], vc, vj);
@@ -479,8 +479,8 @@ namespace OMP
 	/*======================================================================*/
 	int Model::findVertex(Point _p)
 	{
-		for( VIter v_itr = Mesh.vertices_begin(); v_itr != Mesh.vertices_end(); ++v_itr)
-			if( Mesh.point(v_itr) == _p )
+		for (VIter v_itr = Mesh.vertices_begin(); v_itr != Mesh.vertices_end(); ++v_itr)
+			if (Mesh.point(v_itr) == _p)
 				return v_itr.handle().idx();
 		return -1;
 	}
@@ -489,25 +489,25 @@ namespace OMP
 /*======================================================================*/
 void Tri_Mesh::Render_Solid()
 {
-		FIter f_it;
-		FVIter	fv_it;
-		//glPushAttrib(GL_LIGHTING_BIT);
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glEnable(GL_LIGHTING);
-		glPolygonOffset(2.0, 2.0);
-		glBegin(GL_TRIANGLES);
-		glColor4f(0.81, 0.74, 0.33, 0.3);
-		for (f_it = faces_begin(); f_it != faces_end(); ++f_it) 
+	FIter f_it;
+	FVIter	fv_it;
+	//glPushAttrib(GL_LIGHTING_BIT);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glEnable(GL_LIGHTING);
+	glPolygonOffset(2.0, 2.0);
+	glBegin(GL_TRIANGLES);
+	glColor4f(0.81, 0.74, 0.33, 0.3);
+	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
+	{
+		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
 		{
-			for (fv_it = fv_iter( f_it ); fv_it; ++fv_it)
-			{						
-				glNormal3dv(normal(fv_it.handle()).data());
-				glVertex3dv(point(fv_it.handle()).data());
-			}
+			glNormal3dv(normal(fv_it.handle()).data());
+			glVertex3dv(point(fv_it.handle()).data());
 		}
-		glEnd();	
-		
-		glDisable(GL_POLYGON_OFFSET_FILL);
+	}
+	glEnd();
+
+	glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 void Tri_Mesh::Render_SolidWireframe()
@@ -516,7 +516,7 @@ void Tri_Mesh::Render_SolidWireframe()
 	FVIter	fv_it;
 
 	//faces
-    glDisable(GL_LIGHTING);
+	glDisable(GL_LIGHTING);
 	glPushAttrib(GL_LIGHTING_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glEnable(GL_DEPTH_TEST);
@@ -529,35 +529,35 @@ void Tri_Mesh::Render_SolidWireframe()
 		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
 			glVertex3dv(point(fv_it.handle()).data());
 	}
-		
+
 	glColor4f(1.0, 0.96, 0.49, 1.0);
-	for (f_it = faces_begin(); f_it != faces_end(); ++f_it) 
+	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
 	{
-		for (fv_it = fv_iter( f_it ); fv_it; ++fv_it)
-		{						
+		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+		{
 			//glNormal3dv(normal(fv_it.handle()));
 			glVertex3dv(point(fv_it.handle()).data());
 		}
 	}
 	glEnd();
-	
+
 	//glDisable(GL_POLYGON_OFFSET_FILL);
 
 	//edges
-	glPushAttrib(GL_LIGHTING_BIT);	
+	glPushAttrib(GL_LIGHTING_BIT);
 	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
-	glColor3f(0.0, 0.0, 0.0);	
+	glColor3f(0.0, 0.0, 0.0);
 	glBegin(GL_LINES);
-	for(OMT::EIter e_it = edges_begin(); e_it != edges_end(); ++e_it)
+	for (OMT::EIter e_it = edges_begin(); e_it != edges_end(); ++e_it)
 	{
-		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(),1);
+		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(), 1);
 
-		OMT::Point curVertex  = point(from_vertex_handle(_hedge));
+		OMT::Point curVertex = point(from_vertex_handle(_hedge));
 		glVertex3dv(curVertex.data());
 
 		curVertex = point(to_vertex_handle(_hedge));
-		glVertex3dv(curVertex.data());			
+		glVertex3dv(curVertex.data());
 	}
 	glEnd();
 
@@ -569,32 +569,32 @@ void Tri_Mesh::Render_Wireframe()
 	//glPushAttrib(GL_LIGHTING_BIT);	
 	glDisable(GL_LIGHTING);
 	glLineWidth(1.0);
-	
-	glColor3f(0.0, 0.0, 0.0);	
+
+	glColor3f(0.0, 0.0, 0.0);
 
 	glBegin(GL_LINES);
-	for(OMT::EIter e_it = edges_begin(); e_it != edges_end(); ++e_it)
+	for (OMT::EIter e_it = edges_begin(); e_it != edges_end(); ++e_it)
 	{
-		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(),1);
+		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(), 1);
 
-		OMT::Point curVertex  = point(from_vertex_handle(_hedge));
+		OMT::Point curVertex = point(from_vertex_handle(_hedge));
 		glVertex3dv(curVertex.data());
 
 		curVertex = point(to_vertex_handle(_hedge));
-		glVertex3dv(curVertex.data());			
+		glVertex3dv(curVertex.data());
 	}
 	glEnd();
-	
+
 }
 
 void Tri_Mesh::Render_Point()
 {
-	glPointSize ( 8.0 ) ;				  
-	glColor3f( 1.0, 0.0, 0.0 ) ;
+	glPointSize(8.0);
+	glColor3f(1.0, 0.0, 0.0);
 	glBegin(GL_POINTS);
-	for (OMT::VIter v_it = vertices_begin() ; v_it != vertices_end() ; ++v_it)
+	for (OMT::VIter v_it = vertices_begin(); v_it != vertices_end(); ++v_it)
 	{
-		  glVertex3dv(point(v_it).data());
+		glVertex3dv(point(v_it).data());
 	}
 	glEnd();
 }
@@ -616,133 +616,105 @@ void Tri_Mesh::Render_UV()
 	std::cout << "inner count " << std::to_string(innerVertices.size()) << std::endl;
 
 	int id;
-	// unit circle
+	glPointSize(8.0);
+	glBegin(GL_POINTS);
+	glColor4f(0.0, 0.0, 1.0, 1.0);
+	double degree;
+	if(Boundary_type == 1)
+		degree = 360 / boundaryVertices.size();
+	else
+		degree = 4.0 / boundaryVertices.size();
+
+	int num = 0, pos;
+	id = boundaryVertices[num];		//第一個
 	if (Boundary_type == 1)
 	{
-		glPointSize(8.0);
-		glBegin(GL_POINTS);
-		glColor4f(0.0, 0.0, 1.0, 1.0);
-		double degree = 360 / boundaryVertices.size();
-
-		int num = 0, pos;
-		id = boundaryVertices[num];		//第一個
-		uv[id].pos[0] = 0.5 * cosf(num * degree * PI / 180);
-		uv[id].pos[1] = 0.5 * sinf(num * degree * PI / 180);
-		uv[id].vhandle = selectedVertices[id];
-		uv[id].state = 1;
-
-		pos = id;
-		Point position = point(selectedVertices[pos]);
-		std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
-		std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
-		glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
-
-		num++;
-
-		while (num < Boundary_num)
-		{
-			//尋找他的鄰點且是在boundaryVertices裡面
-			for (VVIter vvit = vv_iter(selectedVertices[id]); vvit; ++vvit)
-			{
-				pos = VertexToIndex(vvit.handle()); //轉成id
-				if (pos != -1)
-				{
-					int tmp = std::find(boundaryVertices.begin(), boundaryVertices.end(), pos) - boundaryVertices.begin();
-					if (tmp != -1 && uv[pos].state == 0)
-					{
-						//pos是boundaryVertices且尚未拜訪
-						uv[pos].pos[0] = 0.5 * cosf(num * degree * PI / 180);
-						uv[pos].pos[1] = 0.5 * sinf(num * degree * PI / 180);
-						uv[pos].vhandle = selectedVertices[pos];
-						uv[pos].state = 1;
-
-						Point position = point(selectedVertices[pos]);
-						std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
-						std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
-						glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
-
-						num++;
-						id = pos;
-						break;
-					}
-				}
-
-			}
-		}
-
-		//for (int i = 0; i < boundaryVertices.size(); i++)
-		//{
-		//	id = boundaryVertices[i];
-		//	uv[id].pos[0] = 0.5 * cosf(i * degree * PI / 180);
-		//	uv[id].pos[1] = 0.5 * sinf(i * degree * PI / 180);
-		//	uv[id].vhandle = selectedVertices[id];
-		//	Point position = point(selectedVertices[id]);
-		//	std::cout << std::to_string(id) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
-		//	std::cout << std::to_string(id) << " uv pos " << std::to_string(uv[id].pos[0]) << " " <<  std::to_string(uv[id].pos[1]) << std::endl;
-		//	glVertex2f(uv[id].pos[0], uv[id].pos[1]);
-		//}
-		glEnd();
+		uv[id].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
+		uv[id].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
 	}
 	else
 	{
-		//unit square
-		double clen = 0.0, state = 0;
-		for (int i = 0; i < Boundary_num; i++)
-		{
-			if (clen < 1.0)
-			{
-				uv[i].pos[0] = clen;
-				uv[i].pos[1] = 0.0;
-			}
-			else if (clen >= 1.0 && clen < 2.0)
-			{
-				if (state == 0)
-				{
-					clen = 1.0;
-					uv[i].pos[0] = 1.0;
-					uv[i].pos[1] = 0.0;
-					state = 1;
-				}
-				else
-				{
-					uv[i].pos[0] = 1.0;
-					uv[i].pos[1] = clen -1.0;
-				}
-			}
-			else if (clen >= 2.0 && clen < 3.0)
-			{
-				if (state == 1)
-				{
-					clen = 2.0;
-					uv[i].pos[0] = 1.0;
-					uv[i].pos[1] = 1.0;
-					state = 2;
-				}
-				else
-				{
-					uv[i].pos[0] = 3.0 - clen;
-					uv[i].pos[1] =1.0;
-				}
-			}
-			else if (clen >= 3.0)
-			{
-				if (state == 2)
-				{
-					clen = 3.0;
-					uv[i].pos[0] = 0.0;
-					uv[i].pos[1] = 1.0;
-					state = 3;
-				}
-				else
-				{
-					uv[i].pos[0] = 0.0;
-					uv[i].pos[1] = 4.0 - clen;
-				}
-			}
-		}
+		uv[id].pos[0] = 0.0;
+		uv[id].pos[1] = 0.0;
 	}
 
-	CalculateUVPosition();	
+	uv[id].vhandle = selectedVertices[id];
+	uv[id].state = 1;
+
+	pos = id;
+	Point position = point(selectedVertices[pos]);
+	std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+	std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
+	glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
+
+	num++;
+
+	while (num < Boundary_num)
+	{
+		//尋找他的鄰點且是在boundaryVertices裡面
+		for (VVIter vvit = vv_iter(selectedVertices[id]); vvit; ++vvit)
+		{
+			pos = VertexToIndex(vvit.handle()); //轉成id
+			if (pos != -1)
+			{
+				if ((std::find(boundaryVertices.begin(), boundaryVertices.end(), pos) != boundaryVertices.end()) && uv[pos].state == 0)
+				{
+					//pos是boundaryVertices且尚未拜訪
+					if (Boundary_type == 1)
+					{
+						uv[pos].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
+						uv[pos].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
+					}
+					else
+					{
+						double x, y;
+
+						if (num * degree < 1)
+						{
+							x = 0;
+							y = num * degree;
+						}
+						else if (num * degree < 2)
+						{
+							x = 1;
+							y = num * degree - 1.0;
+						}
+						else if (num * degree < 3)
+						{
+							x = 3.0 - num * degree;
+							y = 1.0;
+						}
+						else if (num * degree <= 4)
+						{
+							x = 0;
+							y = 4.0 - num * degree;
+						}
+
+						uv[pos].pos[0] = x;
+						uv[pos].pos[1] = y;
+					}
+
+					uv[pos].vhandle = selectedVertices[pos];
+					uv[pos].state = 1;
+
+					glColor4f(0.0, 1.0, 0.0, 1.0);
+
+					Point position = point(selectedVertices[pos]);
+					std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+					std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
+					glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
+
+					num++;
+					id = pos;
+					break;
+				}
+			}
+
+		}
+	}
+	glEnd();
+
+	CalculateUVPosition();
 
 	//畫線
 	//edges
@@ -764,11 +736,20 @@ void Tri_Mesh::Render_UV()
 			glBegin(GL_LINES);
 			glVertex2f(uv[cur].pos[0], uv[cur].pos[1]);
 			glVertex2f(uv[nex].pos[0], uv[nex].pos[1]);
-			std::cout << "cur " << std::to_string(cur) << " nex " << std::to_string(nex) << std::endl;
+			std::cout << "cur " << std::to_string(cur) << " " << std::to_string(uv[cur].pos[0]) << " " << std::to_string(uv[cur].pos[1]) << "; nex " << std::to_string(nex) << " " << std::to_string(uv[nex].pos[0]) << " " << std::to_string(uv[nex].pos[1]) << std::endl;
 			glEnd();
 		}
 	}
 	glPopAttrib();
+}
+
+void Tri_Mesh::Clean()
+{
+	selectedFaces.clear();
+	selectedVertices.clear();
+	boundaryVertices.clear();
+	innerVertices.clear();
+	uv.clear();
 }
 
 void Tri_Mesh::FindNearFace(GLdouble * pos)
@@ -777,9 +758,10 @@ void Tri_Mesh::FindNearFace(GLdouble * pos)
 	FVIter	fv_it, fv_it_2;
 	Point points[3], pointMouse, vertex;
 	int i;
+	bool found = false;
 
 	pointMouse[0] = pos[0], pointMouse[1] = pos[1], pointMouse[2] = pos[2];
-	
+
 	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
 	{
 		double total_area = 0, area;
@@ -793,15 +775,17 @@ void Tri_Mesh::FindNearFace(GLdouble * pos)
 
 		area = CalculateArea(points[0], points[1], points[2]);
 
-		if (abs( area - total_area) < 0.000001)
+		if (abs(area - total_area) < 0.000001)
 		{
 			min_f_it = f_it;
+			found = true;
 			break;
 		}
 	}
 
 	//紀錄面
-	if (std::find(selectedFaces.begin(), selectedFaces.end(), min_f_it) == selectedFaces.end())
+	ptrdiff_t face = std::find(selectedFaces.begin(), selectedFaces.end(), min_f_it) - selectedFaces.begin();
+	if (face >= selectedFaces.size() && found == true)
 	{
 		selectedFaces.push_back(min_f_it);
 		std::cout << "size: " << std::to_string(selectedFaces.size()) << "\nnearest face" << std::endl;
@@ -811,12 +795,11 @@ void Tri_Mesh::FindNearFace(GLdouble * pos)
 		}
 
 	}
-	//else
-	//{
-	//	//std::cout << "cancel this face\n";
-	//	//for (fv_it = fv_iter(min_f_it); fv_it; ++fv_it)
-	//	//	std::cout << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << std::endl;
-	//}
+	else if (found)
+	{
+		std::cout << "cancel this face\n";
+		selectedFaces.erase(selectedFaces.begin() + face);
+	}
 }
 
 //判斷是否鄰邊
@@ -915,7 +898,7 @@ void Tri_Mesh::CalculateUVPosition()
 	//}
 	//end debug
 
-	
+
 	A.makeCompressed();
 
 	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
@@ -948,19 +931,6 @@ void Tri_Mesh::CalculateUVPosition()
 //頂點轉換成ID
 int Tri_Mesh::VertexToIndex(VHandle vh)
 {
-	//int pos = -1;
-	//Point vp = point(vh), tmp;
-
-	//for (int i = 0; i < selectedVertices.size(); i++)
-	//{
-	//	tmp = point(selectedVertices[i]);
-	//	if (tmp.data()[0] == vp.data()[0] && tmp.data()[1] == vp.data()[1] && tmp.data()[2] == vp.data()[2])
-	//	{
-	//		pos = i;
-	//		break;
-	//	}
-	//}
-
 	ptrdiff_t pos = std::find(selectedVertices.begin(), selectedVertices.end(), vh) - selectedVertices.begin();
 
 	if (pos >= selectedVertices.size())
@@ -1022,7 +992,7 @@ void Tri_Mesh::FindBoundaryVertices()
 
 	//尋找boundary
 	bool found;
-	for (int v = 0; v < selectedVertices.size();v++)
+	for (int v = 0; v < selectedVertices.size(); v++)
 	{
 		found = false;
 		//此點的所有鄰點
@@ -1031,7 +1001,7 @@ void Tri_Mesh::FindBoundaryVertices()
 			if (std::find(selectedVertices.begin(), selectedVertices.end(), vvit.handle()) == selectedVertices.end())
 			{
 				//有鄰點不在vector裡面，是boundary
-				std::cout << "boundary " << std::to_string(v) << std::endl;
+				//std::cout << "boundary " << std::to_string(v) << std::endl;
 				boundaryVertices.push_back(v);
 				found = true;
 				break;
@@ -1040,25 +1010,25 @@ void Tri_Mesh::FindBoundaryVertices()
 		//內部點
 		if (!found)
 		{
-			std::cout << "inner " << std::to_string(v) << std::endl;
+			//std::cout << "inner " << std::to_string(v) << std::endl;
 			innerVertices.push_back(v);
 		}
 	}
 }
 
-bool ReadFile(std::string _fileName,Tri_Mesh *_mesh)
+bool ReadFile(std::string _fileName, Tri_Mesh *_mesh)
 {
 	bool isRead = false;
 	OpenMesh::IO::Options opt;
-	if ( OpenMesh::IO::read_mesh(*_mesh, _fileName, opt) )
+	if (OpenMesh::IO::read_mesh(*_mesh, _fileName, opt))
 	{
 		//read mesh from filename OK!
 		isRead = true;
 	}
-	if(isRead)
+	if (isRead)
 	{
 		// If the file did not provide vertex normals and mesh has vertex normal ,then calculate them
-		if (!opt.check( OpenMesh::IO::Options::VertexNormal ) && _mesh->has_vertex_normals())
+		if (!opt.check(OpenMesh::IO::Options::VertexNormal) && _mesh->has_vertex_normals())
 		{
 			_mesh->update_normals();
 		}

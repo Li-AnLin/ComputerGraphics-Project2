@@ -244,7 +244,7 @@ public:
 	
 	int                                        Constrain_num;
 	int                                        Boundary_num ;
-	int										   Boundary_type = 1;
+	int										   Boundary_type =  0;
 	OMT::VHandle                               start_vh,end_vh;
 	OMT::VHandle                               ExtremeVh[2];
 	int                                        PatchType;
@@ -265,6 +265,7 @@ public:
 	void Render_Wireframe();
 	void Render_Point();
 	void Render_UV();
+	void Clean();
 
 	void FindNearFace(GLdouble* pos);
 	void FindBoundaryVertices();

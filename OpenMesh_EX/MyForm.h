@@ -158,6 +158,7 @@ namespace OpenMesh_EX {
 			this->hkoglPanelControl1->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::hkoglPanelControl1_MouseDown);
 			this->hkoglPanelControl1->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::hkoglPanelControl1_MouseMove);
 			this->hkoglPanelControl1->MouseWheel += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::hkoglPanelControl1_MouseWheel);
+			this->hkoglPanelControl1->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::hkoglPanelControl1_KeyDown);
 			// 
 			// panel1
 			// 
@@ -187,7 +188,7 @@ namespace OpenMesh_EX {
 			this->hkoglPanelControl2->Size = System::Drawing::Size(250, 250);
 			this->hkoglPanelControl2->TabIndex = 0;
 			this->hkoglPanelControl2->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::hkoglPanelControl2_Paint);
-			this->hkoglPanelControl2->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::hkoglPanelControl2_KeyDown);
+			
 			// 
 			// MyForm
 			// 
@@ -211,14 +212,6 @@ namespace OpenMesh_EX {
 #pragma endregion
 
 //hkog panel control 2
-private: System::Void hkoglPanelControl2_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
-{
-	if (e->KeyCode == Keys::U)
-	{
-		std::cout << "key down U\n";
-		hkoglPanelControl2->Invalidate();
-	}
-}
 
 private: System::Void hkoglPanelControl2_Paint(System::Object^  sender, System::Windows::Forms::PaintEventArgs^  e)
 {
@@ -228,7 +221,7 @@ private: System::Void hkoglPanelControl2_Paint(System::Object^  sender, System::
 
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
-	glOrtho(-2, 2, -2, 2, -1.0, 1.0);
+	glOrtho(-1, 2, -1 , 2, -1.0, 1.0);
 
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -240,6 +233,15 @@ private: System::Void hkoglPanelControl2_Paint(System::Object^  sender, System::
 }
 
 //hkog panel control 1
+private: System::Void hkoglPanelControl1_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
+{
+	if (e->KeyCode == Keys::U)
+	{
+		std::cout << "key down U\n";
+		hkoglPanelControl2->Invalidate();
+	}
+}
+
 private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::EventArgs^  e)
 {
 
@@ -321,6 +323,7 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 		mesh->FindNearFace(obj);
 
 		hkoglPanelControl1->Invalidate();
+		//hkoglPanelControl2->Invalidate();
 	}
 }
 private: System::Void hkoglPanelControl1_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
@@ -393,6 +396,7 @@ private: System::Void openModelDialog_FileOk(System::Object^  sender, System::Co
 		delete mesh;
 
 	mesh = new Tri_Mesh;
+	mesh->Clean();
 
 	if (ReadFile(filename, mesh))
 		std::cout << filename << std::endl;
