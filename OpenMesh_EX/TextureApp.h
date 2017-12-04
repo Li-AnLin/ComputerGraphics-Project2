@@ -4,9 +4,13 @@
 #include <vector>
 #include <math.h>
 
-#include <GL\glut.h>
-#include <GL\GL.h>
-#include <GL\GLU.h>
+#ifdef _WIN32
+#include <GL/glut.h>
+#else
+#include <GLUT/glut.h>
+#endif
+//#include <GL\GL.h>
+//#include <GL\GLU.h>
 
 #define BUFFER_OFFSET(x)  ((const void*) (x))
 
