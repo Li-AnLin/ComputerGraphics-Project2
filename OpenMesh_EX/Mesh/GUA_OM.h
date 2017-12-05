@@ -16,6 +16,8 @@
 //eigen
 #include <Eigen\Sparse>
 
+#include "../TextureApp.h"
+
 #define PI 3.14159265
 
 using namespace Eigen;
@@ -234,9 +236,15 @@ public:
 		int ID;
 	};
 
+	struct Mesh
+	{
+		FHandle face;
+		GLdouble pos[3][2];
+		int textureID;
+	};
+
 	Tri_Mesh()
 	{
-	
 	
 	}
 	//-------Edit Flag-------//
@@ -259,22 +267,30 @@ public:
 	std::vector<int> boundaryVertices;		//¬ö¿ý³»ÂIªºid
 	std::vector<int> innerVertices;
 	std::vector<UV> uv;
+	std::vector<GLint> textureID;
+	std::vector<Mesh> meshes;
 
 	void Render_Solid();
 	void Render_SolidWireframe();
 	void Render_Wireframe();
 	void Render_Point();
+	void Render_Texture();
 	void Render_UV();
-	void Clean();
 
+	void setRenderTextrue(bool open);
+	void Clean();
+	void LoadTexture(char* filepath);
 	void FindNearFace(GLdouble* pos);
+private:
+	bool open = false;
+
 	void FindBoundaryVertices();
 	bool IsVertexVertex(VHandle _vj, VHandle _vi);
 	double CalculateWeight(int origin, std::vector<int> neighbor, double* weights);
 	void CalculateUVPosition();
 	int VertexToIndex(VHandle vh);
 	void LinearSolve();
-private:
+	void SaveMesh();
 };
 
 ///*======================================================================*/

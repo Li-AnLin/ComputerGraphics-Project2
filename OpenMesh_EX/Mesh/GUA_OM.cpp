@@ -562,6 +562,13 @@ void Tri_Mesh::Render_SolidWireframe()
 	glEnd();
 
 	glPopAttrib();
+
+	if (open)
+	{
+		std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+		Render_Texture();
+		open = false;
+	}
 }
 
 void Tri_Mesh::Render_Wireframe()
@@ -599,17 +606,52 @@ void Tri_Mesh::Render_Point()
 	glEnd();
 }
 
+void Tri_Mesh::Render_Texture()
+{
+	SaveMesh();
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	int num;
+	for (int i = 0; i < meshes.size(); i++)
+	{
+		glPushMatrix();
+		glBindTexture(GL_TEXTURE_2D, textureID[meshes[i].textureID]);
+		num = 0;
+		glBegin(GL_TRIANGLES);
+		for (FVIter fv = fv_iter(meshes[i].face); fv; ++fv)
+		{
+			glTexCoord2d(meshes[i].pos[num][0], meshes[i].pos[num][1]); glVertex3dv(point(fv.handle()).data());
+			num++;
+		}
+		glEnd();
+		glPopMatrix();
+	}
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+
+	Clean();
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+}
+
 void Tri_Mesh::Render_UV()
 {
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	uv.clear();  //清空
 
 	FindBoundaryVertices();
 
-	if (Boundary_num == 0)
-		return;
-
 	Boundary_num = boundaryVertices.size();
 	Constrain_num = innerVertices.size();
+
+	if (Boundary_num == 0)
+	{
+		std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+		return;
+	}
 
 	uv.resize(Boundary_num + Constrain_num);
 	for (int i = 0; i < uv.size(); i++)
@@ -747,10 +789,17 @@ void Tri_Mesh::Render_UV()
 		}
 	}
 	glPopAttrib();
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+}
+
+void Tri_Mesh::setRenderTextrue(bool open)
+{
+	this->open = open;
 }
 
 void Tri_Mesh::Clean()
 {
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	selectedFaces.clear();
 	selectedVertices.clear();
 	boundaryVertices.clear();
@@ -976,8 +1025,64 @@ void Tri_Mesh::LinearSolve()
 	std::cout << std::to_string(X[1][0]) << std::endl;
 }
 
+void Tri_Mesh::SaveMesh()
+{
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+	//檢查是否記錄過
+	bool found;
+	int num;
+	for (int i = 0; i < selectedFaces.size(); i++)
+	{
+		found = false; num = 0;
+		for (int j = 0; j < meshes.size(); j++)
+		{
+			if (meshes[j].face == selectedFaces[i].handle())
+			{
+				found = true;
+				meshes[j].textureID = textureID.size() - 1;
+				break;
+			}
+		}
+
+		if (!found)
+		{
+			//創建
+			Mesh new_mesh;
+			new_mesh.face = selectedFaces[i].handle();
+			
+			for (FVIter fv = fv_iter(selectedFaces[i]); fv; ++fv)
+			{
+				for (int v = 0; v < uv.size(); v++)
+				{
+					if (uv[i].vhandle == fv.handle())
+					{
+						new_mesh.pos[num][0] = uv[i].pos[0];
+						new_mesh.pos[num][1] = uv[i].pos[1];
+						num++;
+						break;
+					}
+				}
+			}
+
+			new_mesh.textureID = textureID.size() - 1;
+		}
+
+	}
+
+	//Clean();
+}
+
+//load texture
+void Tri_Mesh::LoadTexture(char * filepath)
+{
+	GLint texture_id = TextureApp::GenTexture(filepath);
+	if (texture_id != 0)
+		textureID.push_back(texture_id);
+}
+
 void Tri_Mesh::FindBoundaryVertices()
 {
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	boundaryVertices.clear();
 	innerVertices.clear();
 	selectedVertices.clear();
@@ -1020,6 +1125,7 @@ void Tri_Mesh::FindBoundaryVertices()
 			innerVertices.push_back(v);
 		}
 	}
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 }
 
 bool ReadFile(std::string _fileName, Tri_Mesh *_mesh)

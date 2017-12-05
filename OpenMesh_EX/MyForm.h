@@ -272,6 +272,13 @@ private: System::Void hkoglPanelControl1_KeyDown(System::Object^  sender, System
 		std::cout << "key down U\n";
 		hkoglPanelControl2->Invalidate();
 	}
+	else if (e->KeyCode == Keys::Space)
+	{
+		std::cout << "key down space\n";
+		if (mesh != NULL)
+			mesh->setRenderTextrue(true);
+		hkoglPanelControl1->Invalidate();
+	}
 }
 
 private: System::Void hkoglPanelControl1_Load(System::Object^  sender, System::EventArgs^  e)
@@ -314,7 +321,10 @@ private: System::Void hkoglPanelControl1_Paint(System::Object^  sender, System::
 	//----------
 
 	if (mesh != NULL)
+	{
 		mesh->Render_SolidWireframe();
+	}
+		
 	glPopMatrix();
 }
 
@@ -432,6 +442,9 @@ private: System::Void openModelDialog_FileOk(System::Object^  sender, System::Co
 
 	if (ReadFile(filename, mesh))
 		std::cout << filename << std::endl;
+
+	//Åª¹Ï
+	mesh->LoadTexture("Image\\worlf.jpg");
 
 	hkoglPanelControl1->Invalidate();
 }

@@ -11,6 +11,8 @@
 #endif
 //#include <GL\GL.h>
 //#include <GL\GLU.h>
+#include <opencv\cv.h>
+#include <opencv\highgui.h>
 
 #define BUFFER_OFFSET(x)  ((const void*) (x))
 

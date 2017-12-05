@@ -74,10 +74,13 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;OpenMeshCore.lib;zlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;OpenMeshCore.lib;zlib.lib;freeglut_static.lib;glew32s.lib;opencv_core2413.lib;opencv_highgui2413.lib;opencv_objdetect2413.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>main</EntryPointSymbol>
     </Link>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="HKOGLPanel">
