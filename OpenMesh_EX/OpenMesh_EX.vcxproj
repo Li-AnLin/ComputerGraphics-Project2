@@ -47,8 +47,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\Eigen-3.3.4;..\OpenMesh-5.2\src;..\Eigen-3.3.4;$(IncludePath)</IncludePath>
-    <LibraryPath>..\OpenMesh-5.2\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\Eigen-3.3.4;..\OpenMesh-5.2\src;..\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\OpenMesh-5.2\lib;..\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -63,7 +63,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;OpenMeshCored.lib</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;opengl32.lib;OpenMeshCored.lib;opencv_core2413d.lib;opencv_highgui2413d.lib;opencv_objdetect2413d.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <EntryPointSymbol>main</EntryPointSymbol>
     </Link>
