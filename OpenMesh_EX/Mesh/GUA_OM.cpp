@@ -512,6 +512,8 @@ void Tri_Mesh::Render_Solid()
 
 void Tri_Mesh::Render_SolidWireframe()
 {
+	Render_Texture();
+
 	FIter f_it;
 	FVIter	fv_it;
 
@@ -563,12 +565,13 @@ void Tri_Mesh::Render_SolidWireframe()
 
 	glPopAttrib();
 
-	if (open)
-	{
-		std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
-		Render_Texture();
-		open = false;
-	}
+	//if (open)
+	//{
+	//	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+	//	Render_Texture();
+	//	open = false;
+	//	return;
+	//}
 }
 
 void Tri_Mesh::Render_Wireframe()
@@ -608,13 +611,16 @@ void Tri_Mesh::Render_Point()
 
 void Tri_Mesh::Render_Texture()
 {
-	SaveMesh();
+	if (open)
+		SaveMesh();
+	
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	int num;
+	std::cout << "meshes size " << std::to_string(meshes.size()) << "\n";
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		glPushMatrix();
@@ -623,7 +629,8 @@ void Tri_Mesh::Render_Texture()
 		glBegin(GL_TRIANGLES);
 		for (FVIter fv = fv_iter(meshes[i].face); fv; ++fv)
 		{
-			glTexCoord2d(meshes[i].pos[num][0], meshes[i].pos[num][1]); glVertex3dv(point(fv.handle()).data());
+			glTexCoord2d(meshes[i].pos[num][0], meshes[i].pos[num][1]); 
+			glVertex3dv(point(fv.handle()).data());
 			num++;
 		}
 		glEnd();
@@ -633,7 +640,12 @@ void Tri_Mesh::Render_Texture()
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 
-	Clean();
+	if (open)
+	{
+		Clean();
+		open = false;
+	}
+	
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 }
 
@@ -983,7 +995,6 @@ void Tri_Mesh::CalculateUVPosition()
 	//LinearSolve();
 }
 
-//³»ÂIÂà´«¦¨ID
 int Tri_Mesh::VertexToIndex(VHandle vh)
 {
 	ptrdiff_t pos = std::find(selectedVertices.begin(), selectedVertices.end(), vh) - selectedVertices.begin();
@@ -1065,11 +1076,13 @@ void Tri_Mesh::SaveMesh()
 			}
 
 			new_mesh.textureID = textureID.size() - 1;
+			meshes.push_back(new_mesh);
 		}
 
 	}
 
-	//Clean();
+	//std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+	Clean();
 }
 
 //load texture
@@ -1078,6 +1091,7 @@ void Tri_Mesh::LoadTexture(char * filepath)
 	GLint texture_id = TextureApp::GenTexture(filepath);
 	if (texture_id != 0)
 		textureID.push_back(texture_id);
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ") texture size " << std::to_string(textureID.size()) << std::endl;
 }
 
 void Tri_Mesh::FindBoundaryVertices()
