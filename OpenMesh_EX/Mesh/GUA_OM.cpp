@@ -1189,8 +1189,8 @@ void Tri_Mesh::FindBoundaryVertices()
 		}
 	}
 
-	//std::cout << "size " << std::to_string(selectedEdge.size()) << std::endl;
-	//std::cout << "times " << std::to_string(num) << std::endl;
+	std::cout << "edge size " << std::to_string(selectedEdge.size()) << std::endl;
+	std::cout << "vertices size " << std::to_string(selectedVertices.size()) << std::endl;
 	/***********************/
 
 	//find boundary and sort
@@ -1198,10 +1198,13 @@ void Tri_Mesh::FindBoundaryVertices()
 	he = halfedge_handle(selectedEdge[pos], 0);
 	first = from_vertex_handle(he), end = to_vertex_handle(he);
 	boundaryVertices.push_back(VertexToIndex(first));
+	std::cout << "boundary index " << std::to_string(VertexToIndex(first)) << std::endl;
 	boundaryVertices.push_back(VertexToIndex(end));
+	std::cout << "boundary index " << std::to_string(VertexToIndex(end)) << std::endl;
 	bool flag = false;
 	while (!flag)
 	{
+		std::cout << "in" << std::endl;
 		selectedEdge.erase(selectedEdge.begin() + pos);
 		for (int i = 0; i < selectedEdge.size(); i++)
 		{
@@ -1214,7 +1217,10 @@ void Tri_Mesh::FindBoundaryVertices()
 				if (std::find(boundaryVertices.begin(), boundaryVertices.end(), VertexToIndex(end)) != boundaryVertices.end())
 					flag = true;
 				else
+				{
 					boundaryVertices.push_back(VertexToIndex(end));
+					std::cout << "boundary index " << std::to_string(VertexToIndex(end)) << std::endl;
+				}
 				break;
 			}
 		}
@@ -1222,6 +1228,7 @@ void Tri_Mesh::FindBoundaryVertices()
 		if (selectedEdge.size() == 0 || flag)
 			break;
 	}
+	std::cout << "boundary size " << std::to_string(boundaryVertices.size()) << std::endl;
 
 	//find inner
 	for (int i = 0; i < selectedVertices.size(); i++)
@@ -1229,6 +1236,7 @@ void Tri_Mesh::FindBoundaryVertices()
 		if (std::find(boundaryVertices.begin(), boundaryVertices.end(), i) == boundaryVertices.end())
 			innerVertices.push_back(i);
 	}
+	std::cout << "inner size " << std::to_string(innerVertices.size()) << std::endl;
 
 #pragma region old method
 	//FVIter	fv_it;
