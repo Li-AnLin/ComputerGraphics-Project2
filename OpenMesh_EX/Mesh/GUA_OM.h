@@ -13,6 +13,7 @@
 
 //STL
 #include <algorithm>
+#include <math.h>
 //eigen
 #include <Eigen\Sparse>
 
@@ -232,7 +233,6 @@ public:
 	{
 		GLdouble pos[2];
 		VHandle vhandle;
-		int state;
 		int ID;
 	};
 
@@ -252,7 +252,10 @@ public:
 	
 	int                                        Constrain_num;
 	int                                        Boundary_num ;
+	
 	int										   Boundary_type =  0;
+	int										   Weight_type = 1;
+
 	OMT::VHandle                               start_vh,end_vh;
 	OMT::VHandle                               ExtremeVh[2];
 	int                                        PatchType;

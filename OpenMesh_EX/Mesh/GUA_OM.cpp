@@ -19,6 +19,19 @@ double CalculateArea(Tri_Mesh::Point A, Tri_Mesh::Point B, Tri_Mesh::Point C)
 	return area;
 }
 
+double cot(Tri_Mesh::Point A, Tri_Mesh::Point B, Tri_Mesh::Point C)
+{
+	double a, b, c;
+	a = Distance(B, C);
+	b = Distance(A, C);
+	c = Distance(A, B);
+
+	double cosValue = c*c - a*a - b*b + 2 * a*b;
+	float degree = std::acosf(cosValue);
+	
+	return (1.0 / tanf(degree));
+}
+
 namespace OMT
 {
 	/*======================================================================*/
@@ -655,6 +668,7 @@ void Tri_Mesh::Render_UV()
 	uv.clear();  //清空
 
 	FindBoundaryVertices();
+	//return;
 
 	Boundary_num = boundaryVertices.size();
 	Constrain_num = innerVertices.size();
@@ -666,8 +680,6 @@ void Tri_Mesh::Render_UV()
 	}
 
 	uv.resize(Boundary_num + Constrain_num);
-	for (int i = 0; i < uv.size(); i++)
-		uv[i].state = 0;
 
 	std::cout << "boundary count " << std::to_string(boundaryVertices.size()) << std::endl;
 	std::cout << "inner count " << std::to_string(innerVertices.size()) << std::endl;
@@ -677,46 +689,26 @@ void Tri_Mesh::Render_UV()
 	glBegin(GL_POINTS);
 	glColor4f(0.0, 0.0, 1.0, 1.0);
 	double degree;
+
 	if (Boundary_type == 1)
 		degree = 360 / boundaryVertices.size();
 	else
 		degree = 4.0 / boundaryVertices.size();
 
-	int num = 0, pos;
-	//id = boundaryVertices[num];		//第一個
-	//if (Boundary_type == 1)
-	//{
-	//	uv[id].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
-	//	uv[id].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
-	//}
-	//else
-	//{
-	//	uv[id].pos[0] = 0.0;
-	//	uv[id].pos[1] = 0.0;
-	//}
-
-	//uv[id].vhandle = selectedVertices[id];
-	//uv[id].state = 1;
-
-	//pos = id;
-	Point position = point(selectedVertices[pos]);
-	std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
-	std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
-	glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
+	int pos;
 
 	//follow index put in the uv map
 	for (int i = 0; i < boundaryVertices.size(); i++)
 	{
 		pos = boundaryVertices[i];
+		double x, y;
 		if (Boundary_type == 1)
 		{
-			uv[pos].pos[0] = 0.5 + 0.5 * cosf(i * degree * PI / 180);
-			uv[pos].pos[1] = 0.5 + 0.5 * sinf(i * degree * PI / 180);
+			x = 0.5 + 0.5 * cosf(i * degree * PI / 180);
+			y = 0.5 + 0.5 * sinf(i * degree * PI / 180);
 		}
 		else
 		{
-			double x, y;
-
 			if (i * degree < 1)
 			{
 				x = i * degree;
@@ -737,13 +729,11 @@ void Tri_Mesh::Render_UV()
 				x = 0;
 				y = 4.0 - i * degree;
 			}
-
-			uv[pos].pos[0] = x;
-			uv[pos].pos[1] = y;
 		}
 
+		uv[pos].pos[0] = x;
+		uv[pos].pos[1] = y;
 		uv[pos].vhandle = selectedVertices[pos];
-		uv[pos].state = 1;
 
 		glColor4f(0.0, 1.0, 0.0, 1.0);
 
@@ -752,76 +742,23 @@ void Tri_Mesh::Render_UV()
 		std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
 		glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
 	}
-
-#pragma region old method
-	/*num++;*/
-	//while (num < Boundary_num)
-	//{
-	//	//尋找他的鄰點且是在boundaryVertices裡面
-	//	for (VVIter vvit = vv_iter(selectedVertices[id]); vvit; ++vvit)
-	//	{
-	//		pos = VertexToIndex(vvit.handle()); //轉成id
-	//		if (pos != -1)
-	//		{
-	//			if ((std::find(boundaryVertices.begin(), boundaryVertices.end(), pos) != boundaryVertices.end()) && uv[pos].state == 0)
-	//			{
-	//				//pos是boundaryVertices且尚未拜訪
-	//				if (Boundary_type == 1)
-	//				{
-	//					uv[pos].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
-	//					uv[pos].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
-	//				}
-	//				else
-	//				{
-	//					double x, y;
-
-	//					if (num * degree < 1)
-	//					{
-	//						x = num * degree;
-	//						y = 0;
-	//					}
-	//					else if (num * degree < 2)
-	//					{
-	//						x = 1;
-	//						y = num * degree - 1.0;
-	//					}
-	//					else if (num * degree < 3)
-	//					{
-	//						x = 3.0 - num * degree;
-	//						y = 1.0;
-	//					}
-	//					else if (num * degree <= 4)
-	//					{
-	//						x = 0;
-	//						y = 4.0 - num * degree;
-	//					}
-
-	//					uv[pos].pos[0] = x;
-	//					uv[pos].pos[1] = y;
-	//				}
-
-	//				uv[pos].vhandle = selectedVertices[pos];
-	//				uv[pos].state = 1;
-
-	//				glColor4f(0.0, 1.0, 0.0, 1.0);
-
-	//				Point position = point(selectedVertices[pos]);
-	//				std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
-	//				std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
-	//				glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
-
-	//				num++;
-	//				id = pos;
-	//				break;
-	//			}
-	//		}
-
-	//	}
-	//}
-#pragma endregion
 	glEnd();
 
 	CalculateUVPosition();
+
+	//find all edge
+	std::vector<EHandle> selectedEdge;
+	HalfedgeHandle he;
+	FEIter fe_it;
+	for (int f_it = 0; f_it < selectedFaces.size(); ++f_it)
+	{
+		for (fe_it = fe_iter(selectedFaces[f_it].handle()); fe_it; ++fe_it)
+		{
+			//find boundary edge
+			if(std::find(selectedEdge.begin(), selectedEdge.end(), fe_it.handle()) == selectedEdge.end())
+				selectedEdge.push_back(fe_it.handle());
+		}
+	}
 
 	//畫線
 	//edges
@@ -831,15 +768,19 @@ void Tri_Mesh::Render_UV()
 	glColor3f(0.0, 0.0, 0.0);
 	for (OMT::EIter e_it = edges_begin(); e_it != edges_end(); ++e_it)
 	{
-		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(), 1);
+		//先判斷此線是否存在
+		if (std::find(selectedEdge.begin(), selectedEdge.end(), e_it.handle()) == selectedEdge.end())
+			continue;
 
+		OMT::HEHandle _hedge = halfedge_handle(e_it.handle(), 1);
 		OMT::VHandle curVertex = from_vertex_handle(_hedge);
 		OMT::VHandle nexVertex = to_vertex_handle(_hedge);
-		//判斷此點是否有
+		//判斷此點是否存在
 		int cur = VertexToIndex(curVertex);
 		int nex = VertexToIndex(nexVertex);
 		if (cur != -1 && nex != -1)
 		{
+			//畫線
 			glBegin(GL_LINES);
 			glVertex2f(uv[cur].pos[0], uv[cur].pos[1]);
 			glVertex2f(uv[nex].pos[0], uv[nex].pos[1]);
@@ -930,8 +871,21 @@ double Tri_Mesh::CalculateWeight(int origin, std::vector<int> neighbor, double* 
 
 	for (int i = 0; i < neighbor.size(); i++)
 	{
-		weights[neighbor[i]] = 1;
-		//std::cout << std::to_string(*(weights+1)) << "\n";
+		if (Weight_type == 0)
+			weights[neighbor[i]] = 1;
+		else if (Weight_type == 1)
+		{
+			int j = neighbor[(i + 1) % neighbor.size()];
+			int e = neighbor[i % neighbor.size()];
+			int k = neighbor[(i - 1) % neighbor.size()];
+
+			double a = cot(point(selectedVertices[origin]), point(selectedVertices[e]), point(selectedVertices[k]));
+			double b = cot(point(selectedVertices[origin]), point(selectedVertices[e]), point(selectedVertices[j]));
+
+			weights[neighbor[i]] = a + b;
+		}
+
+		std::cout << std::to_string(*(weights+1)) << "\n";
 		total_weight = total_weight + (*(weights + neighbor[i]));
 	}
 	//std::cout << "total weight " << std::to_string(total_weight) << std::endl;
@@ -952,7 +906,6 @@ void Tri_Mesh::CalculateUVPosition()
 		int vid = innerVertices[v];
 		//先找與它相鄰的頂點
 		std::vector<int> neighbor;
-		//std::vector<int> innerNeighbor;
 		int id;
 		for (VVIter vvit = vv_iter(selectedVertices[vid]); vvit; ++vvit)
 		{
@@ -966,7 +919,6 @@ void Tri_Mesh::CalculateUVPosition()
 			{
 				//鄰點也是inner
 				neighbor.push_back(id);
-				//innerNeighbor.push_back(id);
 			}
 		}
 
@@ -1171,7 +1123,7 @@ void Tri_Mesh::FindBoundaryVertices()
 	{
 		for (fe_it = fe_iter(selectedFaces[f_it].handle()); fe_it; ++fe_it)
 		{
-			//find edge
+			//find boundary edge
 			pos = EdgeToIndex(selectedEdge, fe_it.handle());
 			if (pos == -1)
 				selectedEdge.push_back(fe_it.handle());
@@ -1189,7 +1141,7 @@ void Tri_Mesh::FindBoundaryVertices()
 		}
 	}
 
-	std::cout << "edge size " << std::to_string(selectedEdge.size()) << std::endl;
+	std::cout << "boundary edge size " << std::to_string(selectedEdge.size()) << std::endl;
 	std::cout << "vertices size " << std::to_string(selectedVertices.size()) << std::endl;
 	/***********************/
 
@@ -1198,35 +1150,41 @@ void Tri_Mesh::FindBoundaryVertices()
 	he = halfedge_handle(selectedEdge[pos], 0);
 	first = from_vertex_handle(he), end = to_vertex_handle(he);
 	boundaryVertices.push_back(VertexToIndex(first));
-	std::cout << "boundary index " << std::to_string(VertexToIndex(first)) << std::endl;
+	//std::cout << "boundary index " << std::to_string(VertexToIndex(first)) << std::endl;
 	boundaryVertices.push_back(VertexToIndex(end));
-	std::cout << "boundary index " << std::to_string(VertexToIndex(end)) << std::endl;
-	bool flag = false;
-	while (!flag)
+	//std::cout << "boundary index " << std::to_string(VertexToIndex(end)) << std::endl;
+
+	bool found;
+	int num = selectedEdge.size(), id;
+	while (boundaryVertices.size() < num)
 	{
-		std::cout << "in" << std::endl;
+		found = false;
 		selectedEdge.erase(selectedEdge.begin() + pos);
 		for (int i = 0; i < selectedEdge.size(); i++)
 		{
-			he = halfedge_handle(selectedEdge[i], 0);
-			if (end == from_vertex_handle(he))
+			for (int type = 0; type < 2; type++)
 			{
-				first = end;
-				end = to_vertex_handle(he);
-				pos = i;
-				if (std::find(boundaryVertices.begin(), boundaryVertices.end(), VertexToIndex(end)) != boundaryVertices.end())
-					flag = true;
-				else
+				he = halfedge_handle(selectedEdge[i], type);
+				if (end == from_vertex_handle(he))
 				{
-					boundaryVertices.push_back(VertexToIndex(end));
-					std::cout << "boundary index " << std::to_string(VertexToIndex(end)) << std::endl;
+					//first = end;
+					end = to_vertex_handle(he);
+					pos = i;
+					id = VertexToIndex(end);
+					if (std::find(boundaryVertices.begin(), boundaryVertices.end(), id) == boundaryVertices.end())
+					{
+						boundaryVertices.push_back(id);
+						//num++;
+						found = true;
+						//std::cout << "boundary index " << std::to_string(id) << std::endl;
+						//std::cout << "boundary size " << std::to_string(boundaryVertices.size()) << std::endl;
+					}
+					break;
 				}
-				break;
 			}
+			if (found)
+				break;
 		}
-
-		if (selectedEdge.size() == 0 || flag)
-			break;
 	}
 	std::cout << "boundary size " << std::to_string(boundaryVertices.size()) << std::endl;
 
