@@ -267,7 +267,7 @@ public:
 	std::vector<int> boundaryVertices;		//¬ö¿ý³»ÂIªºid
 	std::vector<int> innerVertices;
 	std::vector<UV> uv;
-	std::vector<GLint> textureID;
+	//std::vector<GLint> textureID;
 	std::vector<Mesh> meshes;
 
 	void Render_Solid();
@@ -282,6 +282,9 @@ public:
 	void LoadTexture(char* filepath);
 	void FindNearFace(GLdouble* pos);
 private:
+	std::vector<GLint> content1Texture;
+	std::vector<GLint> content2Texture;
+
 	bool open = false;
 
 	void FindBoundaryVertices();

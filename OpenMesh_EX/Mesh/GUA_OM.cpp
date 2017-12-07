@@ -613,7 +613,7 @@ void Tri_Mesh::Render_Texture()
 {
 	if (open)
 		SaveMesh();
-	
+
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
@@ -624,12 +624,12 @@ void Tri_Mesh::Render_Texture()
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		glPushMatrix();
-		glBindTexture(GL_TEXTURE_2D, textureID[meshes[i].textureID]);
+		glBindTexture(GL_TEXTURE_2D, content1Texture[meshes[i].textureID]);
 		num = 0;
 		glBegin(GL_TRIANGLES);
 		for (FVIter fv = fv_iter(meshes[i].face); fv; ++fv)
 		{
-			glTexCoord2d(meshes[i].pos[num][0], meshes[i].pos[num][1]); 
+			glTexCoord2d(meshes[i].pos[num][0], meshes[i].pos[num][1]);
 			glVertex3dv(point(fv.handle()).data());
 			num++;
 		}
@@ -645,7 +645,7 @@ void Tri_Mesh::Render_Texture()
 		Clean();
 		open = false;
 	}
-	
+
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 }
 
@@ -677,101 +677,148 @@ void Tri_Mesh::Render_UV()
 	glBegin(GL_POINTS);
 	glColor4f(0.0, 0.0, 1.0, 1.0);
 	double degree;
-	if(Boundary_type == 1)
+	if (Boundary_type == 1)
 		degree = 360 / boundaryVertices.size();
 	else
 		degree = 4.0 / boundaryVertices.size();
 
 	int num = 0, pos;
-	id = boundaryVertices[num];		//第一個
-	if (Boundary_type == 1)
-	{
-		uv[id].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
-		uv[id].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
-	}
-	else
-	{
-		uv[id].pos[0] = 0.0;
-		uv[id].pos[1] = 0.0;
-	}
+	//id = boundaryVertices[num];		//第一個
+	//if (Boundary_type == 1)
+	//{
+	//	uv[id].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
+	//	uv[id].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
+	//}
+	//else
+	//{
+	//	uv[id].pos[0] = 0.0;
+	//	uv[id].pos[1] = 0.0;
+	//}
 
-	uv[id].vhandle = selectedVertices[id];
-	uv[id].state = 1;
+	//uv[id].vhandle = selectedVertices[id];
+	//uv[id].state = 1;
 
-	pos = id;
+	//pos = id;
 	Point position = point(selectedVertices[pos]);
 	std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
 	std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
 	glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
 
-	num++;
-
-	while (num < Boundary_num)
+	//follow index put in the uv map
+	for (int i = 0; i < boundaryVertices.size(); i++)
 	{
-		//尋找他的鄰點且是在boundaryVertices裡面
-		for (VVIter vvit = vv_iter(selectedVertices[id]); vvit; ++vvit)
+		pos = boundaryVertices[i];
+		if (Boundary_type == 1)
 		{
-			pos = VertexToIndex(vvit.handle()); //轉成id
-			if (pos != -1)
+			uv[pos].pos[0] = 0.5 + 0.5 * cosf(i * degree * PI / 180);
+			uv[pos].pos[1] = 0.5 + 0.5 * sinf(i * degree * PI / 180);
+		}
+		else
+		{
+			double x, y;
+
+			if (i * degree < 1)
 			{
-				if ((std::find(boundaryVertices.begin(), boundaryVertices.end(), pos) != boundaryVertices.end()) && uv[pos].state == 0)
-				{
-					//pos是boundaryVertices且尚未拜訪
-					if (Boundary_type == 1)
-					{
-						uv[pos].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
-						uv[pos].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
-					}
-					else
-					{
-						double x, y;
-
-						if (num * degree < 1)
-						{
-							x = num * degree;
-							y = 0;
-						}
-						else if (num * degree < 2)
-						{
-							x = 1;
-							y = num * degree - 1.0;
-						}
-						else if (num * degree < 3)
-						{
-							x = 3.0 - num * degree;
-							y = 1.0;
-						}
-						else if (num * degree <= 4)
-						{
-							x = 0;
-							y = 4.0 - num * degree;
-						}
-
-						uv[pos].pos[0] = x;
-						uv[pos].pos[1] = y;
-					}
-
-					uv[pos].vhandle = selectedVertices[pos];
-					uv[pos].state = 1;
-
-					glColor4f(0.0, 1.0, 0.0, 1.0);
-
-					Point position = point(selectedVertices[pos]);
-					std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
-					std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
-					glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
-
-					num++;
-					id = pos;
-					break;
-				}
+				x = i * degree;
+				y = 0;
+			}
+			else if (i * degree < 2)
+			{
+				x = 1;
+				y = i * degree - 1.0;
+			}
+			else if (i * degree < 3)
+			{
+				x = 3.0 - i * degree;
+				y = 1.0;
+			}
+			else if (i * degree <= 4)
+			{
+				x = 0;
+				y = 4.0 - i * degree;
 			}
 
+			uv[pos].pos[0] = x;
+			uv[pos].pos[1] = y;
 		}
+
+		uv[pos].vhandle = selectedVertices[pos];
+		uv[pos].state = 1;
+
+		glColor4f(0.0, 1.0, 0.0, 1.0);
+
+		Point position = point(selectedVertices[pos]);
+		std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+		std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
+		glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
 	}
 
-	//glColor4f(0.0, 0.5, 0.5, 1.0);
-	//glVertex2f(0.0, 0.5);
+#pragma region old method
+	/*num++;*/
+	//while (num < Boundary_num)
+	//{
+	//	//尋找他的鄰點且是在boundaryVertices裡面
+	//	for (VVIter vvit = vv_iter(selectedVertices[id]); vvit; ++vvit)
+	//	{
+	//		pos = VertexToIndex(vvit.handle()); //轉成id
+	//		if (pos != -1)
+	//		{
+	//			if ((std::find(boundaryVertices.begin(), boundaryVertices.end(), pos) != boundaryVertices.end()) && uv[pos].state == 0)
+	//			{
+	//				//pos是boundaryVertices且尚未拜訪
+	//				if (Boundary_type == 1)
+	//				{
+	//					uv[pos].pos[0] = 0.5 + 0.5 * cosf(num * degree * PI / 180);
+	//					uv[pos].pos[1] = 0.5 + 0.5 * sinf(num * degree * PI / 180);
+	//				}
+	//				else
+	//				{
+	//					double x, y;
+
+	//					if (num * degree < 1)
+	//					{
+	//						x = num * degree;
+	//						y = 0;
+	//					}
+	//					else if (num * degree < 2)
+	//					{
+	//						x = 1;
+	//						y = num * degree - 1.0;
+	//					}
+	//					else if (num * degree < 3)
+	//					{
+	//						x = 3.0 - num * degree;
+	//						y = 1.0;
+	//					}
+	//					else if (num * degree <= 4)
+	//					{
+	//						x = 0;
+	//						y = 4.0 - num * degree;
+	//					}
+
+	//					uv[pos].pos[0] = x;
+	//					uv[pos].pos[1] = y;
+	//				}
+
+	//				uv[pos].vhandle = selectedVertices[pos];
+	//				uv[pos].state = 1;
+
+	//				glColor4f(0.0, 1.0, 0.0, 1.0);
+
+	//				Point position = point(selectedVertices[pos]);
+	//				std::cout << std::to_string(pos) << " xyz pos " << std::to_string(position.data()[0]) << " " << std::to_string(position.data()[1]) << " " << std::to_string(position.data()[2]) << std::endl;
+	//				std::cout << std::to_string(pos) << " uv pos " << std::to_string(uv[pos].pos[0]) << " " << std::to_string(uv[pos].pos[1]) << std::endl;
+	//				glVertex2f(uv[pos].pos[0], uv[pos].pos[1]);
+
+	//				num++;
+	//				id = pos;
+	//				break;
+	//			}
+	//		}
+
+	//	}
+	//}
+#pragma endregion
 	glEnd();
 
 	CalculateUVPosition();
@@ -801,7 +848,6 @@ void Tri_Mesh::Render_UV()
 		}
 	}
 	glPopAttrib();
-	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 }
 
 void Tri_Mesh::setRenderTextrue(bool open)
@@ -1007,38 +1053,38 @@ int Tri_Mesh::VertexToIndex(VHandle vh)
 	return pos;
 }
 
-void Tri_Mesh::LinearSolve()
-{
-	SparseMatrix<double> A(1, 1);
-	A.insert(0, 0) = 6.0;
-
-	A.makeCompressed();
-
-	std::vector<VectorXd> B;
-	B.resize(2);
-
-	B[0].resize(1);
-	B[1].resize(1);
-
-	B[0][0] = 0.0;
-	B[1][0] = 0.0;
-
-	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
-	linearSolver.compute(A);
-
-	std::vector<VectorXd> X;
-	X.resize(2);
-	X[0] = linearSolver.solve(B[0]);
-	X[1] = linearSolver.solve(B[0]);
-
-	std::cout << "test\n";
-	std::cout << std::to_string(X[0][0]) << std::endl;
-	std::cout << std::to_string(X[1][0]) << std::endl;
-}
+//void Tri_Mesh::LinearSolve()
+//{
+//	SparseMatrix<double> A(1, 1);
+//	A.insert(0, 0) = 6.0;
+//
+//	A.makeCompressed();
+//
+//	std::vector<VectorXd> B;
+//	B.resize(2);
+//
+//	B[0].resize(1);
+//	B[1].resize(1);
+//
+//	B[0][0] = 0.0;
+//	B[1][0] = 0.0;
+//
+//	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
+//	linearSolver.compute(A);
+//
+//	std::vector<VectorXd> X;
+//	X.resize(2);
+//	X[0] = linearSolver.solve(B[0]);
+//	X[1] = linearSolver.solve(B[0]);
+//
+//	std::cout << "test\n";
+//	std::cout << std::to_string(X[0][0]) << std::endl;
+//	std::cout << std::to_string(X[1][0]) << std::endl;
+//}
 
 void Tri_Mesh::SaveMesh()
 {
-	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ") texture id " << std::to_string(content1Texture.size() - 1) << "\n";
 	//檢查是否記錄過
 	bool found;
 	int num;
@@ -1050,7 +1096,7 @@ void Tri_Mesh::SaveMesh()
 			if (meshes[j].face == selectedFaces[i].handle())
 			{
 				found = true;
-				meshes[j].textureID = textureID.size() - 1;
+				meshes[j].textureID = content1Texture.size() - 1;
 				break;
 			}
 		}
@@ -1060,38 +1106,53 @@ void Tri_Mesh::SaveMesh()
 			//創建
 			Mesh new_mesh;
 			new_mesh.face = selectedFaces[i].handle();
-			
+
 			for (FVIter fv = fv_iter(selectedFaces[i]); fv; ++fv)
 			{
 				for (int v = 0; v < uv.size(); v++)
 				{
-					if (uv[i].vhandle == fv.handle())
+					if (uv[v].vhandle == fv.handle())
 					{
-						new_mesh.pos[num][0] = uv[i].pos[0];
-						new_mesh.pos[num][1] = uv[i].pos[1];
+						new_mesh.pos[num][0] = uv[v].pos[0];
+						new_mesh.pos[num][1] = uv[v].pos[1];
 						num++;
 						break;
 					}
 				}
 			}
 
-			new_mesh.textureID = textureID.size() - 1;
+			new_mesh.textureID = content1Texture.size() - 1;
 			meshes.push_back(new_mesh);
 		}
 
 	}
 
 	//std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
-	Clean();
+	//Clean();
 }
 
 //load texture
 void Tri_Mesh::LoadTexture(char * filepath)
 {
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	GLint texture_id = TextureApp::GenTexture(filepath);
 	if (texture_id != 0)
-		textureID.push_back(texture_id);
-	std::cout << __FUNCTION__ << "(" << __LINE__ << ") texture size " << std::to_string(textureID.size()) << std::endl;
+	{
+		content1Texture.push_back(texture_id);
+		std::cout << __FUNCTION__ << "(" << __LINE__ << ") texture size " << std::to_string(content1Texture.size()) << std::endl;
+	}
+}
+
+int EdgeToIndex(std::vector<Tri_Mesh::Model::EHandle> contain, Tri_Mesh::Model::EHandle obj)
+{
+	ptrdiff_t pos = std::find(contain.begin(), contain.end(), obj) - contain.begin();
+
+	if (pos >= contain.size())
+		return -1;
+	else
+		return pos;
+
+	return pos;
 }
 
 void Tri_Mesh::FindBoundaryVertices()
@@ -1100,46 +1161,115 @@ void Tri_Mesh::FindBoundaryVertices()
 	boundaryVertices.clear();
 	innerVertices.clear();
 	selectedVertices.clear();
-
-	FVIter	fv_it;
-	//找全部的點
+	//find all edges and vertex
+	std::vector<EHandle> selectedEdge;
+	HalfedgeHandle he;
+	VHandle first, end;
+	FEIter fe_it;
+	int pos;
 	for (int f_it = 0; f_it < selectedFaces.size(); ++f_it)
 	{
-		for (fv_it = fv_iter(selectedFaces[f_it]); fv_it; ++fv_it)
+		for (fe_it = fe_iter(selectedFaces[f_it].handle()); fe_it; ++fe_it)
 		{
-			//紀錄頂點
-			if (std::find(selectedVertices.begin(), selectedVertices.end(), fv_it.handle()) == selectedVertices.end())
-			{
-				selectedVertices.push_back(fv_it.handle());
-			}
+			//find edge
+			pos = EdgeToIndex(selectedEdge, fe_it.handle());
+			if (pos == -1)
+				selectedEdge.push_back(fe_it.handle());
+			else
+				selectedEdge.erase(selectedEdge.begin() + pos);
+
+			//find vertex
+			he = halfedge_handle(fe_it.handle(), 0);
+			first = from_vertex_handle(he), end = to_vertex_handle(he);
+
+			if (std::find(selectedVertices.begin(), selectedVertices.end(), first) == selectedVertices.end())
+				selectedVertices.push_back(first);
+			if (std::find(selectedVertices.begin(), selectedVertices.end(), end) == selectedVertices.end())
+				selectedVertices.push_back(end);
 		}
 	}
 
-	//尋找boundary
-	bool found;
-	for (int v = 0; v < selectedVertices.size(); v++)
+	//std::cout << "size " << std::to_string(selectedEdge.size()) << std::endl;
+	//std::cout << "times " << std::to_string(num) << std::endl;
+	/***********************/
+
+	//find boundary and sort
+	pos = 0;
+	he = halfedge_handle(selectedEdge[pos], 0);
+	first = from_vertex_handle(he), end = to_vertex_handle(he);
+	boundaryVertices.push_back(VertexToIndex(first));
+	boundaryVertices.push_back(VertexToIndex(end));
+	bool flag = false;
+	while (!flag)
 	{
-		found = false;
-		//此點的所有鄰點
-		for (VVIter vvit = vv_iter(selectedVertices[v]); vvit; ++vvit)
+		selectedEdge.erase(selectedEdge.begin() + pos);
+		for (int i = 0; i < selectedEdge.size(); i++)
 		{
-			if (std::find(selectedVertices.begin(), selectedVertices.end(), vvit.handle()) == selectedVertices.end())
+			he = halfedge_handle(selectedEdge[i], 0);
+			if (end == from_vertex_handle(he))
 			{
-				//有鄰點不在vector裡面，是boundary
-				//std::cout << "boundary " << std::to_string(v) << std::endl;
-				boundaryVertices.push_back(v);
-				found = true;
+				first = end;
+				end = to_vertex_handle(he);
+				pos = i;
+				if (std::find(boundaryVertices.begin(), boundaryVertices.end(), VertexToIndex(end)) != boundaryVertices.end())
+					flag = true;
+				else
+					boundaryVertices.push_back(VertexToIndex(end));
 				break;
 			}
 		}
-		//內部點
-		if (!found)
-		{
-			//std::cout << "inner " << std::to_string(v) << std::endl;
-			innerVertices.push_back(v);
-		}
+
+		if (selectedEdge.size() == 0 || flag)
+			break;
 	}
-	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+
+	//find inner
+	for (int i = 0; i < selectedVertices.size(); i++)
+	{
+		if (std::find(boundaryVertices.begin(), boundaryVertices.end(), i) == boundaryVertices.end())
+			innerVertices.push_back(i);
+	}
+
+#pragma region old method
+	//FVIter	fv_it;
+	////找全部的點
+	//for (int f_it = 0; f_it < selectedFaces.size(); ++f_it)
+	//{
+	//	for (fv_it = fv_iter(selectedFaces[f_it]); fv_it; ++fv_it)
+	//	{
+	//		//紀錄頂點
+	//		if (std::find(selectedVertices.begin(), selectedVertices.end(), fv_it.handle()) == selectedVertices.end())
+	//		{
+	//			selectedVertices.push_back(fv_it.handle());
+	//		}
+	//	}
+	//}
+
+	////尋找boundary
+	//bool found;
+	//for (int v = 0; v < selectedVertices.size(); v++)
+	//{
+	//	found = false;
+	//	//此點的所有鄰點
+	//	for (VVIter vvit = vv_iter(selectedVertices[v]); vvit; ++vvit)
+	//	{
+	//		if (std::find(selectedVertices.begin(), selectedVertices.end(), vvit.handle()) == selectedVertices.end())
+	//		{
+	//			//有鄰點不在vector裡面，是boundary
+	//			//std::cout << "boundary " << std::to_string(v) << std::endl;
+	//			boundaryVertices.push_back(v);
+	//			found = true;
+	//			break;
+	//		}
+	//	}
+	//	//內部點
+	//	if (!found)
+	//	{
+	//		//std::cout << "inner " << std::to_string(v) << std::endl;
+	//		innerVertices.push_back(v);
+	//	}
+	//}
+#pragma endregion
 }
 
 bool ReadFile(std::string _fileName, Tri_Mesh *_mesh)

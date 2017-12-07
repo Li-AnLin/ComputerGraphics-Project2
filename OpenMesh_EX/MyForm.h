@@ -413,11 +413,10 @@ private: System::Void hkoglPanelControl1_MouseDown(System::Object^  sender, Syst
 		glReadPixels(mouse[0], mouse[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse[2]);
 		GLdouble obj[3];
 		gluUnProject(mouse[0], mouse[1], mouse[2], M, P, V, &obj[0], &obj[1], &obj[2]);
-		//std::cout << "world pos: " << std::to_string(obj[0]) << " " << std::to_string(obj[1]) << " " << std::to_string(obj[2]) << std::endl;
+		//find the nearest face
 		mesh->FindNearFace(obj);
 
 		hkoglPanelControl1->Invalidate();
-		//hkoglPanelControl2->Invalidate();
 	}
 }
 private: System::Void hkoglPanelControl1_MouseMove(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e)
@@ -506,10 +505,15 @@ private: System::Void loadTextureToolStripMenuItem_Click(System::Object^  sender
 }
 private: System::Void openTextureDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e)
 {
+	if (mesh == NULL)
+		return;
+
 	std::string filename;
 	MarshalString(openTextureDialog->FileName, filename);
 	//Åª¹Ï
 	std::cout << filename << std::endl;
+	//load twice
+	hkoglPanelControl1->Invalidate();
 	mesh->LoadTexture(strdup(filename.c_str()));
 }
 
