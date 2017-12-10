@@ -1,5 +1,12 @@
 #include "GUA_OM.h"
 
+template<typename T>
+inline void vec_clear(std::vector<T>& v)
+{
+	std::vector<T> t;
+	v.swap(t);
+}
+
 double Distance(Tri_Mesh::Point A, Tri_Mesh::Point B)
 {
 	double distance;
@@ -658,17 +665,14 @@ void Tri_Mesh::Render_Texture()
 		Clean();
 		open = false;
 	}
-
-	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 }
 
 void Tri_Mesh::Render_UV()
 {
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
-	uv.clear();  //清空
+	vec_clear(uv);
 
 	FindBoundaryVertices();
-	//return;
 
 	Boundary_num = boundaryVertices.size();
 	Constrain_num = innerVertices.size();
@@ -760,6 +764,8 @@ void Tri_Mesh::Render_UV()
 		}
 	}
 
+	std::cout << "edge count " << std::to_string(selectedEdge.size()) << std::endl;
+
 	//畫線
 	//edges
 	glPushAttrib(GL_LIGHTING_BIT);
@@ -791,19 +797,51 @@ void Tri_Mesh::Render_UV()
 	glPopAttrib();
 }
 
+void Tri_Mesh::Render_Image(char* filepath)
+{
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
+
+	LoadTexture(filepath, 2);
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glPushMatrix();
+	{
+		glBindTexture(GL_TEXTURE_2D, content2Texture[content2Texture.size() - 1]);
+		glBegin(GL_QUADS);
+		{
+			glTexCoord2d(0, 0); glVertex3d(0, 0, 0);
+			glTexCoord2d(1, 0); glVertex3d(1, 0, 0);
+			glTexCoord2d(1, 1); glVertex3d(1, 1, 0);
+			glTexCoord2d(0, 1); glVertex3d(0, 1, 0);
+		}
+		glEnd();
+	}
+	glPopMatrix();
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+}
+
 void Tri_Mesh::setRenderTextrue(bool open)
 {
-	this->open = open;
+	if (content1Texture.size() > 0)
+		this->open = open;
+	else
+		std::cout << "Please load texture\n";
 }
 
 void Tri_Mesh::Clean()
 {
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
-	selectedFaces.clear();
-	selectedVertices.clear();
-	boundaryVertices.clear();
-	innerVertices.clear();
-	uv.clear();
+	
+	vec_clear(selectedFaces);
+	vec_clear(selectedVertices);
+	vec_clear(boundaryVertices);
+	vec_clear(innerVertices);
+	vec_clear(uv);
 }
 
 void Tri_Mesh::FindNearFace(GLdouble * pos)
@@ -829,7 +867,7 @@ void Tri_Mesh::FindNearFace(GLdouble * pos)
 
 		area = CalculateArea(points[0], points[1], points[2]);
 
-		if (abs(area - total_area) < 0.000001)
+		if (abs(area - total_area) < 0.0000001)
 		{
 			min_f_it = f_it;
 			found = true;
@@ -954,16 +992,6 @@ void Tri_Mesh::CalculateUVPosition()
 		//std::cout << " sum V " << std::to_string(sumV) << std::endl;
 	}
 
-	//debug A
-	//for (int i = 0; i < Constrain_num; i++)
-	//{
-	//	for (int j = 0; j < Constrain_num; j++)
-	//		std::cout << std::to_string(A.data().at(0,0)) << " ";
-	//	std::cout << "\n";
-	//}
-	//end debug
-
-
 	A.makeCompressed();
 
 	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
@@ -989,8 +1017,6 @@ void Tri_Mesh::CalculateUVPosition()
 		glVertex2f(uv[id].pos[0], uv[id].pos[1]);
 	}
 	glEnd();
-
-	//LinearSolve();
 }
 
 int Tri_Mesh::VertexToIndex(VHandle vh)
@@ -1004,35 +1030,6 @@ int Tri_Mesh::VertexToIndex(VHandle vh)
 
 	return pos;
 }
-
-//void Tri_Mesh::LinearSolve()
-//{
-//	SparseMatrix<double> A(1, 1);
-//	A.insert(0, 0) = 6.0;
-//
-//	A.makeCompressed();
-//
-//	std::vector<VectorXd> B;
-//	B.resize(2);
-//
-//	B[0].resize(1);
-//	B[1].resize(1);
-//
-//	B[0][0] = 0.0;
-//	B[1][0] = 0.0;
-//
-//	SparseQR<SparseMatrix<double>, COLAMDOrdering<int>> linearSolver;
-//	linearSolver.compute(A);
-//
-//	std::vector<VectorXd> X;
-//	X.resize(2);
-//	X[0] = linearSolver.solve(B[0]);
-//	X[1] = linearSolver.solve(B[0]);
-//
-//	std::cout << "test\n";
-//	std::cout << std::to_string(X[0][0]) << std::endl;
-//	std::cout << std::to_string(X[1][0]) << std::endl;
-//}
 
 void Tri_Mesh::SaveMesh()
 {
@@ -1080,17 +1077,24 @@ void Tri_Mesh::SaveMesh()
 	}
 
 	//std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
-	//Clean();
 }
 
 //load texture
-void Tri_Mesh::LoadTexture(char * filepath)
+void Tri_Mesh::LoadTexture(char * filepath, int mode)
 {
-	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	GLint texture_id = TextureApp::GenTexture(filepath);
 	if (texture_id != 0)
 	{
-		content1Texture.push_back(texture_id);
+		switch (mode)
+		{
+		case 1:
+			content1Texture.push_back(texture_id);
+			break;
+		default:
+			content2Texture.push_back(texture_id);
+			break;
+		}
+		
 		std::cout << __FUNCTION__ << "(" << __LINE__ << ") texture size " << std::to_string(content1Texture.size()) << std::endl;
 	}
 }
@@ -1110,9 +1114,11 @@ int EdgeToIndex(std::vector<Tri_Mesh::Model::EHandle> contain, Tri_Mesh::Model::
 void Tri_Mesh::FindBoundaryVertices()
 {
 	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
-	boundaryVertices.clear();
-	innerVertices.clear();
-	selectedVertices.clear();
+	
+	vec_clear(boundaryVertices);
+	vec_clear(innerVertices);
+	vec_clear(selectedVertices);
+
 	//find all edges and vertex
 	std::vector<EHandle> selectedEdge;
 	HalfedgeHandle he;
@@ -1167,14 +1173,12 @@ void Tri_Mesh::FindBoundaryVertices()
 				he = halfedge_handle(selectedEdge[i], type);
 				if (end == from_vertex_handle(he))
 				{
-					//first = end;
 					end = to_vertex_handle(he);
 					pos = i;
 					id = VertexToIndex(end);
 					if (std::find(boundaryVertices.begin(), boundaryVertices.end(), id) == boundaryVertices.end())
 					{
 						boundaryVertices.push_back(id);
-						//num++;
 						found = true;
 						//std::cout << "boundary index " << std::to_string(id) << std::endl;
 						//std::cout << "boundary size " << std::to_string(boundaryVertices.size()) << std::endl;
@@ -1195,47 +1199,6 @@ void Tri_Mesh::FindBoundaryVertices()
 			innerVertices.push_back(i);
 	}
 	std::cout << "inner size " << std::to_string(innerVertices.size()) << std::endl;
-
-#pragma region old method
-	//FVIter	fv_it;
-	////找全部的點
-	//for (int f_it = 0; f_it < selectedFaces.size(); ++f_it)
-	//{
-	//	for (fv_it = fv_iter(selectedFaces[f_it]); fv_it; ++fv_it)
-	//	{
-	//		//紀錄頂點
-	//		if (std::find(selectedVertices.begin(), selectedVertices.end(), fv_it.handle()) == selectedVertices.end())
-	//		{
-	//			selectedVertices.push_back(fv_it.handle());
-	//		}
-	//	}
-	//}
-
-	////尋找boundary
-	//bool found;
-	//for (int v = 0; v < selectedVertices.size(); v++)
-	//{
-	//	found = false;
-	//	//此點的所有鄰點
-	//	for (VVIter vvit = vv_iter(selectedVertices[v]); vvit; ++vvit)
-	//	{
-	//		if (std::find(selectedVertices.begin(), selectedVertices.end(), vvit.handle()) == selectedVertices.end())
-	//		{
-	//			//有鄰點不在vector裡面，是boundary
-	//			//std::cout << "boundary " << std::to_string(v) << std::endl;
-	//			boundaryVertices.push_back(v);
-	//			found = true;
-	//			break;
-	//		}
-	//	}
-	//	//內部點
-	//	if (!found)
-	//	{
-	//		//std::cout << "inner " << std::to_string(v) << std::endl;
-	//		innerVertices.push_back(v);
-	//	}
-	//}
-#pragma endregion
 }
 
 bool ReadFile(std::string _fileName, Tri_Mesh *_mesh)

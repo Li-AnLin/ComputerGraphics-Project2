@@ -279,10 +279,11 @@ public:
 	void Render_Point();
 	void Render_Texture();
 	void Render_UV();
+	void Render_Image(char* filepath);
 
 	void setRenderTextrue(bool open);
 	void Clean();
-	void LoadTexture(char* filepath);
+	void LoadTexture(char* filepath, int mode);
 	void FindNearFace(GLdouble* pos);
 private:
 	std::vector<GLint> content1Texture;
@@ -295,7 +296,6 @@ private:
 	double CalculateWeight(int origin, std::vector<int> neighbor, double* weights);
 	void CalculateUVPosition();
 	int VertexToIndex(VHandle vh);
-	void LinearSolve();
 	void SaveMesh();
 };
 

@@ -32,7 +32,7 @@ Manages OpenGL camera and trackball/arcball interaction
 #define TRACKBALL_R 0.8f
 #define DEPTH_FUDGE (1.0f + 0.2f * field_of_view)
 #define MOVEZ_MULT 5.0f
-#define WHEEL_MOVE 0.2f
+#define WHEEL_MOVE 0.1f
 #define MAX_LIGHT M_PI
 
 
