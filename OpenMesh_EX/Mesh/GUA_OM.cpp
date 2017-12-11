@@ -894,6 +894,34 @@ void Tri_Mesh::FindNearFace(GLdouble * pos)
 	}
 }
 
+Tri_Mesh::Model::FHandle Tri_Mesh::FindFace(Point A, Point B, Point C)
+{
+	FIter f_it;
+	FVIter fv_it;
+	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
+	{
+		bool found = true;
+		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+		{
+			if (A != point(fv_it.handle()) && B != point(fv_it.handle()) && C != point(fv_it.handle()))
+			{
+				found = false;
+				break;
+			}
+		}
+
+		if (found)
+			break;
+	}
+
+	return f_it.handle();
+}
+
+std::vector<std::string> Tri_Mesh::getTexture()
+{
+	return this->_textures;
+}
+
 //判斷是否鄰邊
 bool Tri_Mesh::IsVertexVertex(VHandle _vj, VHandle _vi)
 {
@@ -1089,6 +1117,7 @@ void Tri_Mesh::LoadTexture(char * filepath, int mode)
 		{
 		case 1:
 			content1Texture.push_back(texture_id);
+			_textures.push_back(filepath);
 			break;
 		default:
 			content2Texture.push_back(texture_id);
@@ -1229,4 +1258,91 @@ bool SaveFile(std::string _fileName, Tri_Mesh *_mesh)
 		isSave = true;
 	}
 	return isSave;
+}
+
+bool SaveMesh(std::string _fileName, Tri_Mesh * _mesh)
+{
+	bool isSave = false;
+
+	std::fstream file;
+	file.open(_fileName, std::ios::out);
+	if (file.fail())
+	{
+		std::cout << "open file fail\n";
+		return isSave;
+	}
+	//紀錄圖片
+	file << "image\n";
+	for (int i = 0; i < _mesh->getTexture().size(); i++)
+	{
+		file << _mesh->getTexture()[i];
+	}
+	//紀錄點對應圖片
+	file << "data\n";
+	for (int i = 0; i < _mesh->meshes.size(); i++)
+	{
+		file << "i " << std::to_string(_mesh->meshes[i].textureID) << std::endl;
+
+		Tri_Mesh::Model::FHandle fh = _mesh->meshes[i].face;
+		Tri_Mesh::Model::FVIter fv;
+		int pos = 0;
+		for (fv = _mesh->fv_iter(fh); fv; ++fv, pos++)
+		{
+			//點資訊
+			file << "v " << std::to_string(_mesh->point(fv.handle())[0]) << " " << std::to_string(_mesh->point(fv.handle())[1]) << " " << std::to_string(_mesh->point(fv.handle())[2]) << std::endl;
+			file << "u " << std::to_string(_mesh->meshes[i].pos[pos][0]) << " " << std::to_string(_mesh->meshes[i].pos[pos][1]) << std::endl;
+		}
+	}
+
+	isSave = true;
+	file.close();
+	return isSave;
+}
+
+bool ReadMesh(std::string _fileName, Tri_Mesh * _mesh)
+{
+	bool isRead = false;
+	std::fstream file;
+	file.open(_fileName, std::ios::in);
+	if (file.fail())
+	{
+		std::cout << "open file fail\n";
+		return isRead;
+	}
+
+	vec_clear(_mesh->meshes);
+
+	char tmp[100];
+	file >> tmp;
+	//image
+	if (strcmp(tmp, "image") == 0)
+	{
+		while (file >> tmp)
+		{
+			if (strcmp(tmp, "data") == 0)
+				break;
+			_mesh->LoadTexture(tmp, 1);
+		}
+	}
+	
+	char c;
+	while (file >> c)
+	{
+		Tri_Mesh::Mesh new_mesh;
+		if (c == 'i')
+			file >> new_mesh.textureID;
+
+		Tri_Mesh::Point vertecies[3];
+		for (int i = 0; i < 3; i++)
+		{
+			file >> c >> vertecies[i][0] >> vertecies[i][1] >> vertecies[i][2];
+			file >> c >> new_mesh.pos[i][0] >> new_mesh.pos[i][1];
+		}
+		new_mesh.face = _mesh->FindFace(vertecies[0], vertecies[1], vertecies[2]);
+		_mesh->meshes.push_back(new_mesh);
+	}
+
+	isRead = true;
+	file.close();
+	return isRead;
 }

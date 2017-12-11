@@ -285,9 +285,13 @@ public:
 	void Clean();
 	void LoadTexture(char* filepath, int mode);
 	void FindNearFace(GLdouble* pos);
+	FHandle FindFace(Point A, Point B, Point C);
+
+	std::vector<std::string> getTexture();
 private:
 	std::vector<GLint> content1Texture;
 	std::vector<GLint> content2Texture;
+	std::vector<std::string> _textures;
 
 	bool open = false;
 
@@ -303,6 +307,9 @@ private:
 /*======================================================================*/
 bool ReadFile(std::string _fileName, Tri_Mesh *_mesh); //讀取mesh資料
 bool SaveFile(std::string _fileName, Tri_Mesh *_mesh); //儲存mesh資料
+
+bool SaveMesh(std::string _fileName, Tri_Mesh *_mesh);
+bool ReadMesh(std::string _fileName, Tri_Mesh *_mesh);
 /*初始化view port設定函式*/
 
 #endif
