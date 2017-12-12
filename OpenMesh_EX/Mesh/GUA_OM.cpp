@@ -644,11 +644,14 @@ void Tri_Mesh::Render_Texture()
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		glPushMatrix();
+		//std::cout << "meshes id " << std::to_string(content1Texture[meshes[i].textureID]) << "\n";
 		glBindTexture(GL_TEXTURE_2D, content1Texture[meshes[i].textureID]);
 		num = 0;
 		glBegin(GL_TRIANGLES);
 		for (FVIter fv = fv_iter(meshes[i].face); fv; ++fv)
 		{
+			//std::cout << "uv " << std::to_string(meshes[i].pos[num][0]) << " " << std::to_string(meshes[i].pos[num][1]) << "\n";
+			//std::cout << "xyz " << std::to_string(point(fv.handle())[0]) << " " << std::to_string(point(fv.handle())[1]) << " " << std::to_string(point(fv.handle())[2]) << "\n";
 			glTexCoord2d(meshes[i].pos[num][0], meshes[i].pos[num][1]);
 			glVertex3dv(point(fv.handle()).data());
 			num++;
@@ -898,21 +901,34 @@ Tri_Mesh::Model::FHandle Tri_Mesh::FindFace(Point A, Point B, Point C)
 {
 	FIter f_it;
 	FVIter fv_it;
+	bool flag = false;
 	for (f_it = faces_begin(); f_it != faces_end(); ++f_it)
 	{
-		bool found = true;
+		int found = 0;
 		for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
 		{
-			if (A != point(fv_it.handle()) && B != point(fv_it.handle()) && C != point(fv_it.handle()))
-			{
-				found = false;
-				break;
-			}
+			Point temp = point(fv_it.handle());
+			if (abs(A[0] - temp[0]) < 0.000001 && abs(A[1] - temp[1]) < 0.000001 &&abs(A[2] - temp[2]) < 0.000001)
+				found++;
+			else if (abs(B[0] - temp[0]) < 0.000001 && abs(B[1] - temp[1]) < 0.000001 &&abs(B[2] - temp[2]) < 0.000001)
+				found++;
+			else if (abs(C[0] - temp[0]) < 0.000001 && abs(C[1] - temp[1]) < 0.000001 &&abs(C[2] - temp[2]) < 0.000001)
+				found++;
 		}
 
-		if (found)
+		if (found >= 3)
+		{
+			//for (fv_it = fv_iter(f_it); fv_it; ++fv_it)
+			//	std::cout << "xyz " << std::to_string(point(fv_it.handle())[0]) << " " << std::to_string(point(fv_it.handle())[1]) << " " << std::to_string(point(fv_it.handle())[2]) << "\n";
+			//flag = true;
 			break;
+		}
 	}
+
+	//if (flag)
+	//	std::cout << "good\n";
+	//else
+	//	std::cout << "bad\n";
 
 	return f_it.handle();
 }
@@ -1118,6 +1134,7 @@ void Tri_Mesh::LoadTexture(char * filepath, int mode)
 		case 1:
 			content1Texture.push_back(texture_id);
 			_textures.push_back(filepath);
+			//std::cout << "meshes id " << std::to_string(texture_id) << "\n";
 			break;
 		default:
 			content2Texture.push_back(texture_id);
@@ -1275,10 +1292,10 @@ bool SaveMesh(std::string _fileName, Tri_Mesh * _mesh)
 	file << "image\n";
 	for (int i = 0; i < _mesh->getTexture().size(); i++)
 	{
-		file << _mesh->getTexture()[i];
+		file << _mesh->getTexture()[i] << std::endl;
 	}
 	//紀錄點對應圖片
-	file << "data\n";
+	file << "\ndata\n";
 	for (int i = 0; i < _mesh->meshes.size(); i++)
 	{
 		file << "i " << std::to_string(_mesh->meshes[i].textureID) << std::endl;
@@ -1301,6 +1318,7 @@ bool SaveMesh(std::string _fileName, Tri_Mesh * _mesh)
 
 bool ReadMesh(std::string _fileName, Tri_Mesh * _mesh)
 {
+	std::cout << __FUNCTION__ << "(" << __LINE__ << ")\n";
 	bool isRead = false;
 	std::fstream file;
 	file.open(_fileName, std::ios::in);
@@ -1337,6 +1355,9 @@ bool ReadMesh(std::string _fileName, Tri_Mesh * _mesh)
 		{
 			file >> c >> vertecies[i][0] >> vertecies[i][1] >> vertecies[i][2];
 			file >> c >> new_mesh.pos[i][0] >> new_mesh.pos[i][1];
+
+			//std::cout << "uv " << std::to_string(new_mesh.pos[i][0]) << " " << std::to_string(new_mesh.pos[i][1]) << "\n";
+			//std::cout << "xyz " << std::to_string(vertecies[i][0]) << " " << std::to_string(vertecies[i][1]) << " " << std::to_string(vertecies[i][2]) << "\n";
 		}
 		new_mesh.face = _mesh->FindFace(vertecies[0], vertecies[1], vertecies[2]);
 		_mesh->meshes.push_back(new_mesh);
